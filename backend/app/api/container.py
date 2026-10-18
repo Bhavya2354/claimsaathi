@@ -33,6 +33,7 @@ from app.rules.catalogue import load_catalogue
 from app.services.cases import CaseService
 from app.services.claims import ClaimService
 from app.services.ingest import IngestService
+from app.services.reads import CaseReads
 from app.services.telemetry import DatabaseCallRecorder
 
 
@@ -47,6 +48,7 @@ class Container:
     cases: CaseService
     ingest: IngestService
     claims: ClaimService
+    reads: CaseReads
 
     async def close(self) -> None:
         await self.index.close()
@@ -102,4 +104,5 @@ def build_container() -> Container:
             limits=limits,
         ),
         claims=ClaimService(sessions, graph, masker, agents.chat_history_turns),
+        reads=CaseReads(masker, index),
     )

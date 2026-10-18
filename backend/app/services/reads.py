@@ -10,6 +10,7 @@ from app.db.models import Analysis, Case, ChatMessage, Document, Letter, utcnow
 from app.documents.privacy import PiiMasker
 from app.domain import DocumentKind
 from app.errors import NotFoundError
+from app.policy.index import PolicyIndex
 from app.services.claims import effective_facts, letter_view
 from app.services.views import (
     AuditView,
@@ -71,8 +72,18 @@ def document_view(document: Document) -> DocumentView:
 
 
 class CaseReads:
-    def __init__(self, masker: PiiMasker) -> None:
+    def __init__(self, masker: PiiMasker, index: PolicyIndex) -> None:
         self._masker = masker
+        self._index = index
+
+    async def _clauses(self, case_id: str, letters: list[Letter]) -> dict[str, ClauseView]:
+        wanted = {str(cid) for letter in letters for cid in letter.clause_ids or []}
+        found = await self._index.clauses(case_id, wanted)
+        return {clause.clause_id: ClauseView.of(clause) for clause in found}
+
+    @staticmethod
+    def _cited(letter: Letter, known: dict[str, ClauseView]) -> list[ClauseView]:
+        return [known[str(cid)] for cid in letter.clause_ids or [] if str(cid) in known]
 
     def _unmask[V: BaseModel](self, case: Case, view: V) -> V:
         vault = self._masker.unseal(case.pii_vault)
@@ -93,6 +104,7 @@ class CaseReads:
                 .order_by(ChatMessage.created_at)
             )
         )
+        known = await self._clauses(case.id, letters)
         latest: dict[str, str] = {}
         for intent, analysis_id in await session.execute(
             select(Analysis.intent, Analysis.id)
@@ -106,7 +118,7 @@ class CaseReads:
             facts=case.facts or {},
             effective_facts=effective_facts(case),
             documents=[document_view(d) for d in case.documents],
-            letters=[letter_view(letter, []) for letter in letters],
+            letters=[letter_view(letter, self._cited(letter, known)) for letter in letters],
             messages=[
                 MessageView(
                     id=m.id,
@@ -152,11 +164,10 @@ class CaseReads:
             raise NotFoundError("letter not found")
         return row
 
-    async def letter(
-        self, session: AsyncSession, case: Case, letter_id: str, clauses: list[ClauseView]
-    ) -> LetterView:
+    async def letter(self, session: AsyncSession, case: Case, letter_id: str) -> LetterView:
         row = await self._letter(session, case, letter_id)
-        return self._unmask(case, letter_view(row, clauses))
+        known = await self._clauses(case.id, [row])
+        return self._unmask(case, letter_view(row, self._cited(row, known)))
 
     async def edit_letter(
         self, session: AsyncSession, case: Case, letter_id: str, subject: str, body: str
@@ -167,10 +178,12 @@ class CaseReads:
         vault = self._masker.unseal(case.pii_vault)
         row.subject = self._masker.remask(subject, vault)[:300]
         row.body = self._masker.remask(body, vault)
-        return self._unmask(case, letter_view(row, []))
+        known = await self._clauses(case.id, [row])
+        return self._unmask(case, letter_view(row, self._cited(row, known)))
 
     async def approve_letter(self, session: AsyncSession, case: Case, letter_id: str) -> LetterView:
         row = await self._letter(session, case, letter_id)
         row.status = "approved"
         row.approved_at = row.approved_at or utcnow()
-        return self._unmask(case, letter_view(row, []))
+        known = await self._clauses(case.id, [row])
+        return self._unmask(case, letter_view(row, self._cited(row, known)))

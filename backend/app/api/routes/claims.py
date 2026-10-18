@@ -4,7 +4,6 @@ from app.api.dependencies import CaseDep, ContainerDep, SessionDep
 from app.api.schemas import ChatRequest, EstimateRequest, LetterEdit, LetterRequest
 from app.domain import Bill, BillLine
 from app.rules.terms import LabelledLine
-from app.services.reads import CaseReads
 from app.services.views import AuditView, ChatReply, LetterView, ReviewView
 
 router = APIRouter(prefix="/api/cases/{case_id}", tags=["claims"])
@@ -43,7 +42,7 @@ async def review(case: CaseDep, container: ContainerDep) -> ReviewView:
 async def analysis(
     analysis_id: str, case: CaseDep, container: ContainerDep, session: SessionDep
 ) -> AuditView | ReviewView:
-    return await CaseReads(container.masker).analysis(session, case, analysis_id)
+    return await container.reads.analysis(session, case, analysis_id)
 
 
 @router.post("/letters", status_code=status.HTTP_201_CREATED)
@@ -55,16 +54,14 @@ async def draft_letter(body: LetterRequest, case: CaseDep, container: ContainerD
 async def get_letter(
     letter_id: str, case: CaseDep, container: ContainerDep, session: SessionDep
 ) -> LetterView:
-    return await CaseReads(container.masker).letter(session, case, letter_id, [])
+    return await container.reads.letter(session, case, letter_id)
 
 
 @router.put("/letters/{letter_id}")
 async def edit_letter(
     letter_id: str, body: LetterEdit, case: CaseDep, container: ContainerDep, session: SessionDep
 ) -> LetterView:
-    return await CaseReads(container.masker).edit_letter(
-        session, case, letter_id, body.subject, body.body
-    )
+    return await container.reads.edit_letter(session, case, letter_id, body.subject, body.body)
 
 
 @router.post("/letters/{letter_id}/approve")
@@ -72,7 +69,7 @@ async def approve_letter(
     letter_id: str, case: CaseDep, container: ContainerDep, session: SessionDep
 ) -> LetterView:
     """The user's sign-off; the letter is final after this."""
-    return await CaseReads(container.masker).approve_letter(session, case, letter_id)
+    return await container.reads.approve_letter(session, case, letter_id)
 
 
 @router.post("/chat")

@@ -8,7 +8,6 @@ from app.db.models import Case, Feedback
 from app.errors import NotFoundError
 from app.rules.checklist import Checklist, build_checklist
 from app.services.claims import effective_facts
-from app.services.reads import CaseReads
 from app.services.views import CaseView, ClauseView, CreatedCase
 
 router = APIRouter(prefix="/api/cases", tags=["cases"])
@@ -22,7 +21,7 @@ async def create_case(container: ContainerDep) -> CreatedCase:
 
 @router.get("/{case_id}")
 async def get_case(case: CaseDep, container: ContainerDep, session: SessionDep) -> CaseView:
-    return await CaseReads(container.masker).case(session, case)
+    return await container.reads.case(session, case)
 
 
 @router.patch("/{case_id}/facts")
@@ -37,7 +36,7 @@ async def update_facts(
     stored.terms_reading = None
     await session.flush()
     await session.refresh(stored, ["documents"])
-    return await CaseReads(container.masker).case(session, stored)
+    return await container.reads.case(session, stored)
 
 
 @router.delete("/{case_id}", status_code=status.HTTP_204_NO_CONTENT)
