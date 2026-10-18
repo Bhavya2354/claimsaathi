@@ -58,6 +58,8 @@ ignore = ["PLR0913", "TRY003", "PLC0415"]
 "app/api/routes/**" = ["PLR0917", "B008"]
 "migrations/**" = ["E501"]
 "tests/**" = ["S101", "PLR2004", "S106"]
+# Seeded test-data generation: reproducible pseudo-randomness and probability thresholds.
+"app/evals/synthetic.py" = ["S311", "PLR2004"]
 
 [tool.mypy]
 python_version = "3.12"

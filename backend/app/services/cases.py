@@ -50,12 +50,18 @@ class CaseService:
             session.add(case)
         return case, token
 
-    async def authorise(self, session: AsyncSession, case_id: str, token: str) -> Case:
+    @staticmethod
+    async def load(session: AsyncSession, case_id: str) -> Case:
+        """A live case with its documents; no token check, for internal callers only."""
         case = await session.scalar(
             select(Case).where(Case.id == case_id).options(selectinload(Case.documents))
         )
         if case is None or case.expires_at <= utcnow():
             raise NotFoundError("case not found or expired")
+        return case
+
+    async def authorise(self, session: AsyncSession, case_id: str, token: str) -> Case:
+        case = await self.load(session, case_id)
         if not hmac.compare_digest(case.token_hash, _digest(token)):
             raise AccessDeniedError("invalid case token")
         return case

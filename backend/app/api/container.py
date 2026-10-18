@@ -21,6 +21,7 @@ from app.config import (
     provider_settings,
     retrieval_settings,
     route_settings,
+    tracing_settings,
 )
 from app.db.session import create_engine, session_factory
 from app.documents.extraction import Extractor
@@ -34,7 +35,7 @@ from app.services.cases import CaseService
 from app.services.claims import ClaimService
 from app.services.ingest import IngestService
 from app.services.reads import CaseReads
-from app.services.telemetry import DatabaseCallRecorder
+from app.services.telemetry import DatabaseCallRecorder, FanOutRecorder, LangfuseRecorder
 
 
 @dataclass(frozen=True, slots=True)
@@ -49,8 +50,11 @@ class Container:
     ingest: IngestService
     claims: ClaimService
     reads: CaseReads
+    tracer: LangfuseRecorder | None
 
     async def close(self) -> None:
+        if self.tracer is not None:
+            await self.tracer.close()
         await self.index.close()
         await self.http.aclose()
         await self.engine.dispose()
@@ -67,12 +71,15 @@ def build_container() -> Container:
     sessions = session_factory(engine)
     # The OS trust store: corporate proxies and antivirus TLS inspection break certifi alone.
     http = httpx.AsyncClient(verify=truststore.SSLContext(), follow_redirects=False)
+    tracing = tracing_settings()
+    tracer = LangfuseRecorder(http, tracing) if tracing.enabled else None
+    recorder = DatabaseCallRecorder(sessions)
     router = build_router(
         http,
         provider_settings(),
         route_settings(),
         model_call_settings(),
-        DatabaseCallRecorder(sessions),
+        FanOutRecorder(recorder, tracer) if tracer else recorder,
     )
     index = PolicyIndex(retrieval)
     masker = PiiMasker(privacy_settings())
@@ -105,4 +112,5 @@ def build_container() -> Container:
         ),
         claims=ClaimService(sessions, graph, masker, agents.chat_history_turns),
         reads=CaseReads(masker, index),
+        tracer=tracer,
     )

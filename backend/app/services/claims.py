@@ -10,7 +10,7 @@ from collections.abc import Sequence
 from decimal import Decimal
 from typing import Any
 
-from sqlalchemy import select
+from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from sqlalchemy.orm import selectinload
 
@@ -266,6 +266,10 @@ class ClaimService:
         return ChatReply.model_validate(
             self._masker.unmask_tree(reply.model_dump(mode="json"), vault)
         )
+
+    async def clear_chat(self, case_id: str) -> None:
+        async with transaction(self._sessions) as session:
+            await session.execute(delete(ChatMessage).where(ChatMessage.case_id == case_id))
 
     @staticmethod
     def _cache(case: Case, snapshot: CaseSnapshot, state: GraphState, source: str) -> None:
