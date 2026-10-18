@@ -20,7 +20,7 @@ from app.agents.policy_expert import TermsReading
 from app.db.models import Analysis, Case, ChatMessage, Document, Letter, new_id, utcnow
 from app.db.session import transaction
 from app.documents.privacy import PiiMasker
-from app.domain import Bill, BillLine, DischargeSummary, DocumentKind, RejectionLetter
+from app.domain import Bill, DischargeSummary, DocumentKind, RejectionLetter
 from app.errors import AppError, NotFoundError
 from app.llm.types import Message
 from app.policy.chunking import Clause
@@ -211,6 +211,22 @@ class ClaimService:
             self._masker.unmask_tree(view.model_dump(mode="json"), vault)
         )
 
+    async def audit(
+        self,
+        case_id: str,
+        *,
+        bill: Bill | None = None,
+        labelled: list[LabelledLine] | None = None,
+    ) -> AuditView:
+        view = await self.run(case_id, Intent.AUDIT, bill=bill, labelled=labelled)
+        return _expect(view, AuditView)
+
+    async def review(self, case_id: str) -> ReviewView:
+        return _expect(await self.run(case_id, Intent.REVIEW), ReviewView)
+
+    async def letter(self, case_id: str, kind: LetterKind) -> LetterView:
+        return _expect(await self.run(case_id, Intent.LETTER, letter_kind=kind), LetterView)
+
     async def chat(self, case_id: str, text: str) -> ChatReply:
         case = await self._load(case_id)
         snapshot, source = self.snapshot(case)
@@ -393,6 +409,12 @@ class ClaimService:
         )
 
 
+def _expect[V](view: object, kind: type[V]) -> V:
+    if not isinstance(view, kind):
+        raise TypeError(f"expected {kind.__name__}, got {type(view).__name__}")
+    return view
+
+
 def letter_view(
     row: Letter, clauses: list[ClauseView], state: GraphState | None = None
 ) -> LetterView:
@@ -408,13 +430,4 @@ def letter_view(
         verified=row.verified,
         issues=list(row.issues or []),
         steps=state.get("steps", []) if state else [],
-    )
-
-
-def bill_from_form(lines: Sequence[tuple[str, Decimal, Decimal | None]]) -> Bill:
-    return Bill(
-        lines=[
-            BillLine(description=description, amount=amount, quantity=quantity)
-            for description, amount, quantity in lines
-        ]
     )
