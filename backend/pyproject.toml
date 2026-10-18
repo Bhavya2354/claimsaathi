@@ -63,6 +63,8 @@ ignore = ["PLR0913", "TRY003", "PLC0415"]
 python_version = "3.12"
 strict = true
 plugins = ["pydantic.mypy"]
+# PyMuPDF ships partial type hints; its constructors are untyped.
+untyped_calls_exclude = ["pymupdf"]
 
 [[tool.mypy.overrides]]
 module = ["fitz.*", "pymupdf.*", "rapidocr.*", "presidio_analyzer.*", "presidio_anonymizer.*", "fastembed.*"]
