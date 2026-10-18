@@ -185,8 +185,11 @@ class PolicyExpert:
             self._read_group(case_id, "waiting", _Waiting, shared),
             self._read_group(case_id, "caps", _Caps, shared),
         )
+        # A sum insured with no clause behind it was copied from the case details; the engine
+        # reads those directly, so only a cited figure from the policy is kept.
+        cited_sum = limits.sum_insured if limits.sum_insured_clause_ids else None
         terms = PolicyTerms(
-            sum_insured=limits.sum_insured,
+            sum_insured=cited_sum,
             clause_ids=limits.sum_insured_clause_ids,
             room_rent=limits.room_rent,
             icu_rent=limits.icu_rent,

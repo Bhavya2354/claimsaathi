@@ -128,6 +128,11 @@ class EvalRunner:
             # Policy wordings are typed by the uploader in the UI; others are auto-detected.
             hint = DocumentKind.POLICY if kind == "policy" else None
             await self._c.ingest.process(document.id, data, hint)
+        async with self._c.sessions() as session:
+            stored = await self._c.cases.load(session, case_id)
+        failed = [f"{d.filename}: {d.error}" for d in stored.documents if d.status == "failed"]
+        if failed:
+            raise RuntimeError("document failed: " + "; ".join(failed))
 
     async def run_case(self, case: SyntheticCase, *, chat: bool) -> CaseScore:
         score = CaseScore(case_id=case.case_id, scenario=case.scenario)
