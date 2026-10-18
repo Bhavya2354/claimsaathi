@@ -12,7 +12,7 @@ to the insurer can be filled back in without storing names in clear text.
 import json
 import re
 from collections.abc import Iterable
-from typing import ClassVar
+from typing import Any, ClassVar
 
 from cryptography.fernet import Fernet, InvalidToken
 from presidio_analyzer import (
@@ -47,10 +47,11 @@ class _LabelledIdRecognizer(EntityRecognizer):
 
     PATTERNS: ClassVar[dict[str, re.Pattern[str]]] = {
         "POLICY_NUMBER": re.compile(
-            r"policy\s*(?:no|number|num|#)\.?\s*[:\-]?\s*([A-Z0-9][A-Z0-9/\-]{5,40})", re.I
+            r"policy\s{0,3}(?:no|number|num|#)\.?\s{0,3}[:\-]?\s{0,3}([A-Z0-9][A-Z0-9/\-]{5,40})",
+            re.I,
         ),
         "MEDICAL_RECORD_NUMBER": re.compile(
-            r"\b(?:uhid|mrn|mr\s*no|ip\s*no|ipd\s*no|reg(?:istration)?\s*no)\.?\s*[:\-]?\s*"
+            r"\b(?:uhid|mrn|mr\s?no|ip\s?no|ipd\s?no|reg(?:istration)?\s?no)\.?\s{0,3}[:\-]?\s{0,3}"
             r"([A-Z0-9][A-Z0-9/\-]{3,30})",
             re.I,
         ),
@@ -140,6 +141,25 @@ class PiiMasker:
     @staticmethod
     def unmask(text: str, vault: dict[str, str]) -> str:
         return _TOKEN.sub(lambda m: vault.get(m.group(0), m.group(0)), text)
+
+    @staticmethod
+    def remask(text: str, vault: dict[str, str]) -> str:
+        """Re-mask text the owner edited in clear, so stored letters never hold raw values."""
+        for token, value in sorted(vault.items(), key=lambda item: -len(item[1])):
+            if value:
+                text = text.replace(value, token)
+        return text
+
+    @classmethod
+    def unmask_tree(cls, value: Any, vault: dict[str, str]) -> Any:
+        """Unmask every string inside JSON-like data."""
+        if isinstance(value, str):
+            return cls.unmask(value, vault)
+        if isinstance(value, list):
+            return [cls.unmask_tree(item, vault) for item in value]
+        if isinstance(value, dict):
+            return {key: cls.unmask_tree(item, vault) for key, item in value.items()}
+        return value
 
     def seal(self, vault: dict[str, str]) -> bytes:
         return self._fernet.encrypt(json.dumps(vault).encode())

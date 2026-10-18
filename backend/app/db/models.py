@@ -6,12 +6,31 @@ from typing import Any
 
 from sqlalchemy import JSON, Boolean, DateTime, ForeignKey, Integer, LargeBinary, String, Text
 from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.engine import Dialect
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
+from sqlalchemy.types import TypeDecorator
 
 Json = JSON().with_variant(JSONB(), "postgresql")
 
 
-def _id() -> str:
+class UtcDateTime(TypeDecorator[datetime]):
+    """Timezone-aware UTC on every backend; SQLite would otherwise return naive values."""
+
+    impl = DateTime(timezone=True)
+    cache_ok = True
+
+    def process_bind_param(self, value: datetime | None, dialect: Dialect) -> datetime | None:
+        if value is not None and value.tzinfo is None:
+            raise ValueError("naive datetimes are not stored")
+        return value.astimezone(UTC) if value is not None else None
+
+    def process_result_value(self, value: datetime | None, dialect: Dialect) -> datetime | None:
+        if value is not None and value.tzinfo is None:
+            return value.replace(tzinfo=UTC)
+        return value
+
+
+def new_id() -> str:
     return str(uuid.uuid4())
 
 
@@ -23,14 +42,14 @@ class Base(DeclarativeBase):
     type_annotation_map = {  # noqa: RUF012 - SQLAlchemy reads this mapping at class creation
         dict[str, Any]: Json,
         list[Any]: Json,
-        datetime: DateTime(timezone=True),
+        datetime: UtcDateTime(),
     }
 
 
 class Case(Base):
     __tablename__ = "cases"
 
-    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_id)
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)
     token_hash: Mapped[str] = mapped_column(String(64))
     created_at: Mapped[datetime] = mapped_column(default=utcnow)
     expires_at: Mapped[datetime] = mapped_column(index=True)
@@ -47,7 +66,7 @@ class Case(Base):
 class Document(Base):
     __tablename__ = "documents"
 
-    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_id)
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)
     case_id: Mapped[str] = mapped_column(ForeignKey("cases.id", ondelete="CASCADE"), index=True)
     created_at: Mapped[datetime] = mapped_column(default=utcnow)
     filename: Mapped[str] = mapped_column(String(200))
@@ -68,7 +87,7 @@ class Document(Base):
 class Analysis(Base):
     __tablename__ = "analyses"
 
-    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_id)
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)
     case_id: Mapped[str] = mapped_column(ForeignKey("cases.id", ondelete="CASCADE"), index=True)
     created_at: Mapped[datetime] = mapped_column(default=utcnow)
     intent: Mapped[str] = mapped_column(String(16))
@@ -81,7 +100,7 @@ class Analysis(Base):
 class Letter(Base):
     __tablename__ = "letters"
 
-    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_id)
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)
     case_id: Mapped[str] = mapped_column(ForeignKey("cases.id", ondelete="CASCADE"), index=True)
     created_at: Mapped[datetime] = mapped_column(default=utcnow)
     kind: Mapped[str] = mapped_column(String(16))
@@ -97,7 +116,7 @@ class Letter(Base):
 class ChatMessage(Base):
     __tablename__ = "chat_messages"
 
-    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_id)
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)
     case_id: Mapped[str] = mapped_column(ForeignKey("cases.id", ondelete="CASCADE"), index=True)
     created_at: Mapped[datetime] = mapped_column(default=utcnow)
     role: Mapped[str] = mapped_column(String(16))
@@ -128,7 +147,7 @@ class ModelCall(Base):
 class Feedback(Base):
     __tablename__ = "feedback"
 
-    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_id)
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)
     case_id: Mapped[str] = mapped_column(ForeignKey("cases.id", ondelete="CASCADE"), index=True)
     created_at: Mapped[datetime] = mapped_column(default=utcnow)
     target_type: Mapped[str] = mapped_column(String(16))

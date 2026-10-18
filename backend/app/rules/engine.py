@@ -18,7 +18,7 @@ from functools import lru_cache
 from importlib import resources
 from typing import Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, computed_field
 
 from app.domain import LineCategory
 from app.rules.terms import CaseFacts, LabelledLine, PolicyTerms, RoomLimit, WaitingKind
@@ -59,6 +59,7 @@ class LineDecision(BaseModel):
     catalogue_item: str | None = None
     note: str | None = None
 
+    @computed_field  # type: ignore[prop-decorator]
     @property
     def status(self) -> Literal["covered", "partly_covered", "not_covered"]:
         if self.payable <= _ZERO < self.billed:

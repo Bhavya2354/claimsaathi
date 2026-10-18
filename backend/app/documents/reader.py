@@ -10,7 +10,7 @@ from typing import Any, Literal
 
 import pymupdf
 
-from app.config import AgentSettings, StorageSettings
+from app.config import AgentSettings, CaseSettings
 from app.documents.ocr import OcrEngine
 from app.errors import DocumentError
 from app.llm.types import Image
@@ -54,16 +54,16 @@ def sniff_mime(data: bytes) -> MimeType:
 
 
 class DocumentReader:
-    def __init__(self, ocr: OcrEngine, storage: StorageSettings, agents: AgentSettings) -> None:
+    def __init__(self, ocr: OcrEngine, limits: CaseSettings, agents: AgentSettings) -> None:
         self._ocr = ocr
-        self._storage = storage
+        self._limits = limits
         self._agents = agents
 
     def validate(self, data: bytes) -> MimeType:
         if not data:
             raise DocumentError("the file is empty")
-        if len(data) > self._storage.max_upload_mb * 1024 * 1024:
-            raise DocumentError(f"files above {self._storage.max_upload_mb} MB are not accepted")
+        if len(data) > self._limits.max_upload_mb * 1024 * 1024:
+            raise DocumentError(f"files above {self._limits.max_upload_mb} MB are not accepted")
         return sniff_mime(data)
 
     async def read(self, data: bytes, *, tags: dict[str, str] | None = None) -> ReadDocument:
@@ -87,8 +87,8 @@ class DocumentReader:
         with pdf:
             if pdf.needs_pass:
                 raise DocumentError("password-protected PDFs are not supported")
-            if pdf.page_count > self._storage.max_pdf_pages:
-                limit = self._storage.max_pdf_pages
+            if pdf.page_count > self._limits.max_pdf_pages:
+                limit = self._limits.max_pdf_pages
                 raise DocumentError(f"PDFs above {limit} pages are not accepted")
             pages: list[Page] = []
             for index, page in enumerate(pdf, start=1):

@@ -29,16 +29,14 @@ class RuntimeSettings(_Section):
     log_format: Literal["json", "console"] = "json"
 
 
-class StorageSettings(_Section):
-    data_dir: Path = Field(description="Root folder for uploads and the local vector index.")
+class CaseSettings(_Section):
+    """Upload limits and retention. Raw files are never written to disk."""
+
     max_upload_mb: int = Field(default=15, ge=1)
     max_pdf_pages: int = Field(default=150, ge=1)
-    case_ttl_hours: int = Field(default=24, ge=1, description="Cases and files are purged after.")
+    max_documents_per_case: int = Field(default=12, ge=1)
+    case_ttl_hours: int = Field(default=24, ge=1, description="Cases are purged after.")
     purge_interval_minutes: int = Field(default=30, ge=1)
-
-    @property
-    def uploads_dir(self) -> Path:
-        return self.data_dir / "uploads"
 
 
 class DatabaseSettings(_Section):
@@ -179,8 +177,8 @@ def runtime_settings() -> RuntimeSettings:
 
 
 @lru_cache
-def storage_settings() -> StorageSettings:
-    return _load(StorageSettings)
+def case_settings() -> CaseSettings:
+    return _load(CaseSettings)
 
 
 @lru_cache

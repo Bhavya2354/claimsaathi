@@ -132,9 +132,7 @@ class PolicyIndex:
     ) -> list[ScoredClause]:
         await self._ensure_collection()
         limit = self._settings.retrieval_candidates
-        case_filter = models.Filter(
-            must=[models.FieldCondition(key="case_id", match=models.MatchValue(value=case_id))]
-        )
+        case_filter = _match(case_id=case_id)
         dense, sparse = await asyncio.to_thread(self._embed_query, query)
         response = await self._client.query_points(
             self._settings.qdrant_collection,
@@ -181,18 +179,30 @@ class PolicyIndex:
         )
         return [_to_clause(point.payload or {}) for point in points]
 
-    async def delete_case(self, case_id: str) -> None:
+    async def delete_document(self, case_id: str, document_id: str) -> None:
         await self._ensure_collection()
         await self._client.delete(
             self._settings.qdrant_collection,
             points_selector=models.FilterSelector(
-                filter=models.Filter(
-                    must=[
-                        models.FieldCondition(key="case_id", match=models.MatchValue(value=case_id))
-                    ]
-                )
+                filter=_match(case_id=case_id, document_id=document_id)
             ),
         )
+
+    async def delete_case(self, case_id: str) -> None:
+        await self._ensure_collection()
+        await self._client.delete(
+            self._settings.qdrant_collection,
+            points_selector=models.FilterSelector(filter=_match(case_id=case_id)),
+        )
+
+
+def _match(**fields: str) -> models.Filter:
+    return models.Filter(
+        must=[
+            models.FieldCondition(key=key, match=models.MatchValue(value=value))
+            for key, value in fields.items()
+        ]
+    )
 
 
 def _to_clause(payload: dict[str, object]) -> Clause:
