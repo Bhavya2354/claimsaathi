@@ -40,17 +40,31 @@ class JsonFormatter(logging.Formatter):
         return json.dumps(payload, default=str)
 
 
+class ConsoleFormatter(logging.Formatter):
+    """Readable lines for local runs, with structured extras appended as key=value."""
+
+    def __init__(self) -> None:
+        super().__init__("%(asctime)s %(levelname)-7s %(name)s: %(message)s", "%H:%M:%S")
+
+    def format(self, record: logging.LogRecord) -> str:
+        line = super().format(record)
+        extras = {k: v for k, v in record.__dict__.items() if k not in _RESERVED and v is not None}
+        if extras:
+            line += " " + " ".join(f"{k}={v}" for k, v in extras.items())
+        return line
+
+
 def configure_logging(settings: RuntimeSettings) -> None:
     handler = logging.StreamHandler(sys.stderr)
     handler.addFilter(_RequestIdFilter())
     if settings.log_format == "json":
         handler.setFormatter(JsonFormatter())
     else:
-        handler.setFormatter(
-            logging.Formatter("%(asctime)s %(levelname)-7s %(name)s: %(message)s", "%H:%M:%S")
-        )
+        handler.setFormatter(ConsoleFormatter())
     root = logging.getLogger()
     root.handlers[:] = [handler]
     root.setLevel(settings.log_level)
-    for noisy in ("httpx", "httpcore", "presidio-analyzer", "fastembed"):
+    for noisy in ("httpx", "httpcore", "fastembed"):
         logging.getLogger(noisy).setLevel(logging.WARNING)
+    # Presidio warns once per unmapped spaCy label on every call; those labels are ignored anyway.
+    logging.getLogger("presidio-analyzer").setLevel(logging.ERROR)

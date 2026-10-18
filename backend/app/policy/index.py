@@ -89,9 +89,10 @@ class PolicyIndex:
                         _SPARSE: models.SparseVectorParams(modifier=models.Modifier.IDF)
                     },
                 )
-                await self._client.create_payload_index(
-                    name, "case_id", field_schema=models.PayloadSchemaType.KEYWORD
-                )
+                if self._settings.qdrant_url is not None:  # embedded mode has no indexes
+                    await self._client.create_payload_index(
+                        name, "case_id", field_schema=models.PayloadSchemaType.KEYWORD
+                    )
             self._collection_checked = True
 
     def _embed_passages(
