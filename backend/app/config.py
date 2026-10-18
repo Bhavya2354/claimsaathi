@@ -5,6 +5,7 @@ settings it actually depends on. Environment-specific values (paths, URLs,
 credentials, model names) have no defaults; only operational tunables do.
 """
 
+import os
 from functools import lru_cache
 from pathlib import Path
 from typing import Literal
@@ -14,11 +15,15 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from app.errors import ConfigurationError
 
+# ENV_FILE="" turns the file off (tests, containers that inject real environment variables).
+_ENV_FILE = os.environ.get("ENV_FILE", ".env") or None
+
 
 class _Section(BaseSettings):
     model_config = SettingsConfigDict(
-        env_file=".env",
+        env_file=_ENV_FILE,
         env_file_encoding="utf-8",
+        env_ignore_empty=True,  # a blank `KEY=` line means "not set"
         extra="ignore",
         frozen=True,
     )
@@ -116,6 +121,7 @@ class RetrievalSettings(_Section):
     model_cache_dir: Path = Field(description="Where downloaded embedding models are kept.")
     chunk_max_chars: int = Field(default=1_400, ge=200)
     chunk_overlap_chars: int = Field(default=200, ge=0)
+    warm_up_models: bool = Field(default=True, description="Load models at API startup.")
     retrieval_candidates: int = Field(default=24, ge=1)
     retrieval_top_k: int = Field(default=6, ge=1)
     terms_clauses_per_query: int = Field(default=3, ge=1)

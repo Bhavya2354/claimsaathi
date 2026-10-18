@@ -40,6 +40,29 @@ _NAME_CUES = re.compile(
     re.IGNORECASE,
 )
 _TOKEN = re.compile(r"\[[A-Z_]+_\d+\]")
+# One more capitalised word after a detected name, on the same line.
+_NAME_WORD = re.compile(r" ([A-Z][a-z]{1,20})\b")
+_NOT_NAME_WORDS = {
+    "age",
+    "sex",
+    "male",
+    "female",
+    "date",
+    "bed",
+    "ward",
+    "room",
+    "uhid",
+    "mobile",
+    "phone",
+    "address",
+    "policy",
+    "dob",
+    "consultant",
+    "doctor",
+    "hospital",
+    "ip",
+}
+_MIN_KNOWN_VALUE = 3
 
 
 class _LabelledIdRecognizer(EntityRecognizer):
@@ -121,7 +144,8 @@ class PiiMasker:
         results = self._analyzer.analyze(
             text=text, language="en", entities=self.ENTITIES, score_threshold=self._threshold
         )
-        spans = _non_overlapping(r for r in results if _keep(r, text))
+        people = _merge_names([_extend_name(r, text) for r in results if _keep(r, text)], text)
+        spans = _non_overlapping([*people, *_known_values(text, vault)])
         known = {value: token for token, value in vault.items()}
         pieces: list[str] = []
         cursor = 0
@@ -181,6 +205,49 @@ def _keep(result: RecognizerResult, text: str) -> bool:
     line_end = text.find("\n", result.end)
     line = text[line_start : line_end if line_end != -1 else len(text)]
     return bool(_NAME_CUES.search(line))
+
+
+def _extend_name(result: RecognizerResult, text: str) -> RecognizerResult:
+    """The small NER model often stops after two words of an Indian name; finish the name."""
+    if result.entity_type != "PERSON":
+        return result
+    end = result.end
+    while match := _NAME_WORD.match(text, end):
+        if match.group(1).lower() in _NOT_NAME_WORDS:
+            break
+        end = match.end()
+    return RecognizerResult("PERSON", result.start, end, result.score)
+
+
+def _merge_names(results: list[RecognizerResult], text: str) -> list[RecognizerResult]:
+    """Join PERSON spans separated only by a space ("Ramesh Kumar" + "Sharma")."""
+    ordered = sorted(results, key=lambda r: r.start)
+    merged: list[RecognizerResult] = []
+    for result in ordered:
+        last = merged[-1] if merged else None
+        if (
+            last is not None
+            and last.entity_type == result.entity_type == "PERSON"
+            and result.start >= last.end
+            and text[last.end : result.start].strip(" ") == ""
+            and "\n" not in text[last.end : result.start]
+        ):
+            merged[-1] = RecognizerResult("PERSON", last.start, result.end, last.score)
+        else:
+            merged.append(result)
+    return merged
+
+
+def _known_values(text: str, vault: dict[str, str]) -> list[RecognizerResult]:
+    """Values already in the vault are masked wherever they recur, even if NER misses them."""
+    found = []
+    for token, value in vault.items():
+        if len(value) < _MIN_KNOWN_VALUE:
+            continue
+        entity = token.strip("[]").rsplit("_", 1)[0]
+        for match in re.finditer(re.escape(value), text):
+            found.append(RecognizerResult(entity, match.start(), match.end(), score=1.0))
+    return found
 
 
 def _non_overlapping(results: Iterable[RecognizerResult]) -> list[RecognizerResult]:

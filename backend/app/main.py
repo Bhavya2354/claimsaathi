@@ -13,7 +13,7 @@ from app.api.container import Container, build_container
 from app.api.errors import install_error_handlers
 from app.api.middleware import RateLimitMiddleware, RequestContextMiddleware
 from app.api.routes import cases, claims, documents, health
-from app.config import api_settings, case_settings, runtime_settings
+from app.config import api_settings, case_settings, retrieval_settings, runtime_settings
 from app.observability import configure_logging
 
 log = logging.getLogger(__name__)
@@ -33,7 +33,9 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     container = build_container()
     app.state.container = container
     log.info("model routes", extra={"routes": container.router.summary()})
-    warm = asyncio.create_task(container.index.warm_up())
+    warm = asyncio.create_task(
+        container.index.warm_up() if retrieval_settings().warm_up_models else asyncio.sleep(0)
+    )
     purge = asyncio.create_task(_purge_loop(container, case_settings().purge_interval_minutes * 60))
     try:
         yield
