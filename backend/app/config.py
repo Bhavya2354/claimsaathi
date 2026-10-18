@@ -116,10 +116,13 @@ class RetrievalSettings(_Section):
     sparse_model: str = Field(min_length=1, description="FastEmbed sparse (keyword) model id.")
     rerank_model: str = Field(min_length=1, description="FastEmbed cross-encoder model id.")
     model_cache_dir: Path = Field(description="Where downloaded embedding models are kept.")
-    chunk_max_chars: int = Field(default=1_800, ge=200)
+    chunk_max_chars: int = Field(default=1_400, ge=200)
     chunk_overlap_chars: int = Field(default=200, ge=0)
     retrieval_candidates: int = Field(default=24, ge=1)
     retrieval_top_k: int = Field(default=6, ge=1)
+    terms_clauses_per_query: int = Field(default=3, ge=1)
+    # Free tiers cap tokens per minute; this bounds the clause text sent in one call.
+    context_max_chars: int = Field(default=14_000, ge=2_000)
 
     @model_validator(mode="after")
     def _one_backend(self) -> "RetrievalSettings":

@@ -75,6 +75,11 @@ class PolicyTerms(_Term):
 class CaseFacts(BaseModel):
     """What happened in this admission: from the user's form and the discharge summary."""
 
+    claim_type: Literal["cashless", "reimbursement"] | None = None
+    patient_age: int | None = Field(default=None, ge=0, le=120)
+    network_hospital: bool | None = None
+    diagnosis: str | None = None
+    procedures: list[str] = Field(default_factory=list)
     policy_start_date: date | None = None
     admission_date: date | None = None
     discharge_date: date | None = None
