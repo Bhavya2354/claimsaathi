@@ -1,0 +1,1125 @@
+{
+ "source": "IRDAI Guidelines on Standardization in Health Insurance, list of non-medical expenses (Lists I-IV), carried into the IRDAI Master Circular on Health Insurance Business. List I items are not covered; Lists II-IV are subsumed into room, procedure or treatment charges and are not payable when billed separately.",
+ "lists": {
+  "I": "Items for which coverage is not available in the policy",
+  "II": "Items subsumed into room charges",
+  "III": "Items subsumed into cost of procedures",
+  "IV": "Items subsumed into costs of treatment"
+ },
+ "items": [
+  {
+   "list": "I",
+   "item": "Baby food",
+   "keywords": [
+    "baby food"
+   ]
+  },
+  {
+   "list": "I",
+   "item": "Baby utilities charges",
+   "keywords": [
+    "baby utilit*"
+   ]
+  },
+  {
+   "list": "I",
+   "item": "Beauty services",
+   "keywords": [
+    "beauty service"
+   ]
+  },
+  {
+   "list": "I",
+   "item": "Belts / braces",
+   "keywords": [
+    "belt",
+    "brace"
+   ]
+  },
+  {
+   "list": "I",
+   "item": "Buds",
+   "keywords": [
+    "buds",
+    "ear bud"
+   ]
+  },
+  {
+   "list": "I",
+   "item": "Cold pack / hot pack",
+   "keywords": [
+    "cold pack",
+    "hot pack",
+    "ice pack"
+   ]
+  },
+  {
+   "list": "I",
+   "item": "Carry bags",
+   "keywords": [
+    "carry bag"
+   ]
+  },
+  {
+   "list": "I",
+   "item": "Email / internet charges",
+   "keywords": [
+    "email",
+    "internet",
+    "wifi",
+    "wi-fi"
+   ]
+  },
+  {
+   "list": "I",
+   "item": "Food charges other than the patient's diet",
+   "keywords": [
+    "attendant food",
+    "guest food",
+    "attendant meal",
+    "canteen"
+   ]
+  },
+  {
+   "list": "I",
+   "item": "Leggings",
+   "keywords": [
+    "legging"
+   ]
+  },
+  {
+   "list": "I",
+   "item": "Laundry charges",
+   "keywords": [
+    "laundry"
+   ]
+  },
+  {
+   "list": "I",
+   "item": "Mineral water",
+   "keywords": [
+    "mineral water",
+    "drinking water",
+    "water bottle"
+   ]
+  },
+  {
+   "list": "I",
+   "item": "Sanitary pad",
+   "keywords": [
+    "sanitary pad",
+    "sanitary napkin"
+   ]
+  },
+  {
+   "list": "I",
+   "item": "Telephone charges",
+   "keywords": [
+    "telephone",
+    "phone charge"
+   ]
+  },
+  {
+   "list": "I",
+   "item": "Guest services",
+   "keywords": [
+    "guest service"
+   ]
+  },
+  {
+   "list": "I",
+   "item": "Crepe bandage",
+   "keywords": [
+    "crepe bandage"
+   ]
+  },
+  {
+   "list": "I",
+   "item": "Diaper of any type",
+   "keywords": [
+    "diaper",
+    "adult diaper"
+   ]
+  },
+  {
+   "list": "I",
+   "item": "Eyelet collar",
+   "keywords": [
+    "eyelet collar"
+   ]
+  },
+  {
+   "list": "I",
+   "item": "Slings",
+   "keywords": [
+    "sling"
+   ]
+  },
+  {
+   "list": "I",
+   "item": "Blood grouping and cross matching of donor samples",
+   "keywords": [
+    "donor blood grouping",
+    "donor cross match"
+   ]
+  },
+  {
+   "list": "I",
+   "item": "Service charges where nursing charge is also charged",
+   "keywords": [
+    "service charge"
+   ]
+  },
+  {
+   "list": "I",
+   "item": "Television charges",
+   "keywords": [
+    "television",
+    "tv charge"
+   ]
+  },
+  {
+   "list": "I",
+   "item": "Surcharges",
+   "keywords": [
+    "surcharge"
+   ]
+  },
+  {
+   "list": "I",
+   "item": "Attendant charges",
+   "keywords": [
+    "attendant charge",
+    "attendant bed"
+   ]
+  },
+  {
+   "list": "I",
+   "item": "Extra diet of patient",
+   "keywords": [
+    "extra diet"
+   ]
+  },
+  {
+   "list": "I",
+   "item": "Birth certificate",
+   "keywords": [
+    "birth certificate"
+   ]
+  },
+  {
+   "list": "I",
+   "item": "Certificate charges",
+   "keywords": [
+    "certificate charge",
+    "fitness certificate"
+   ]
+  },
+  {
+   "list": "I",
+   "item": "Courier charges",
+   "keywords": [
+    "courier"
+   ]
+  },
+  {
+   "list": "I",
+   "item": "Conveyance charges",
+   "keywords": [
+    "conveyance"
+   ]
+  },
+  {
+   "list": "I",
+   "item": "Medical certificate",
+   "keywords": [
+    "medical certificate"
+   ]
+  },
+  {
+   "list": "I",
+   "item": "Medical records",
+   "keywords": [
+    "medical record",
+    "record charge"
+   ]
+  },
+  {
+   "list": "I",
+   "item": "Photocopies charges",
+   "keywords": [
+    "photocop*",
+    "xerox"
+   ]
+  },
+  {
+   "list": "I",
+   "item": "Mortuary charges",
+   "keywords": [
+    "mortuary"
+   ]
+  },
+  {
+   "list": "I",
+   "item": "Walking aids charges",
+   "keywords": [
+    "walking aid",
+    "walker",
+    "crutch"
+   ]
+  },
+  {
+   "list": "I",
+   "item": "Oxygen cylinder for use outside the hospital",
+   "keywords": [
+    "home oxygen"
+   ]
+  },
+  {
+   "list": "I",
+   "item": "Spacer",
+   "keywords": [
+    "spacer"
+   ]
+  },
+  {
+   "list": "I",
+   "item": "Spirometre",
+   "keywords": [
+    "spirometer",
+    "spirometre"
+   ]
+  },
+  {
+   "list": "I",
+   "item": "Nebulizer kit",
+   "keywords": [
+    "nebulizer kit",
+    "nebuliser kit",
+    "nebulisation kit",
+    "nebulization kit"
+   ]
+  },
+  {
+   "list": "I",
+   "item": "Steam inhaler",
+   "keywords": [
+    "steam inhaler",
+    "vaporizer"
+   ]
+  },
+  {
+   "list": "I",
+   "item": "Armsling",
+   "keywords": [
+    "arm sling",
+    "armsling"
+   ]
+  },
+  {
+   "list": "I",
+   "item": "Thermometer",
+   "keywords": [
+    "thermometer"
+   ]
+  },
+  {
+   "list": "I",
+   "item": "Cervical collar",
+   "keywords": [
+    "cervical collar"
+   ]
+  },
+  {
+   "list": "I",
+   "item": "Splint",
+   "keywords": [
+    "splint"
+   ]
+  },
+  {
+   "list": "I",
+   "item": "Diabetic footwear",
+   "keywords": [
+    "diabetic foot",
+    "diabetic shoe"
+   ]
+  },
+  {
+   "list": "I",
+   "item": "Knee braces",
+   "keywords": [
+    "knee brace",
+    "knee cap"
+   ]
+  },
+  {
+   "list": "I",
+   "item": "Knee / shoulder immobilizer",
+   "keywords": [
+    "immobilizer",
+    "immobiliser"
+   ]
+  },
+  {
+   "list": "I",
+   "item": "Lumbo sacral belt",
+   "keywords": [
+    "lumbo sacral",
+    "ls belt"
+   ]
+  },
+  {
+   "list": "I",
+   "item": "Nimbus bed or water or air bed charges",
+   "keywords": [
+    "nimbus bed",
+    "water bed",
+    "air bed",
+    "air mattress"
+   ]
+  },
+  {
+   "list": "I",
+   "item": "Ambulance collar",
+   "keywords": [
+    "ambulance collar"
+   ]
+  },
+  {
+   "list": "I",
+   "item": "Ambulance equipment",
+   "keywords": [
+    "ambulance equipment"
+   ]
+  },
+  {
+   "list": "I",
+   "item": "Abdominal binder",
+   "keywords": [
+    "abdominal binder",
+    "abdominal belt"
+   ]
+  },
+  {
+   "list": "I",
+   "item": "Private nurses / special nursing charges",
+   "keywords": [
+    "private nurse",
+    "special nursing"
+   ]
+  },
+  {
+   "list": "I",
+   "item": "Sugar free tablets",
+   "keywords": [
+    "sugar free"
+   ]
+  },
+  {
+   "list": "I",
+   "item": "Creams, powders, lotions (toiletries)",
+   "keywords": [
+    "toiletr*",
+    "body lotion",
+    "talcum powder",
+    "moisturi*",
+    "body cream"
+   ]
+  },
+  {
+   "list": "I",
+   "item": "ECG electrodes",
+   "keywords": [
+    "ecg electrode"
+   ]
+  },
+  {
+   "list": "I",
+   "item": "Gloves",
+   "keywords": [
+    "glove"
+   ]
+  },
+  {
+   "list": "I",
+   "item": "Nebulisation kit",
+   "keywords": [
+    "nebulisation set"
+   ]
+  },
+  {
+   "list": "I",
+   "item": "Kidney tray",
+   "keywords": [
+    "kidney tray"
+   ]
+  },
+  {
+   "list": "I",
+   "item": "Mask",
+   "keywords": [
+    "mask",
+    "n95"
+   ]
+  },
+  {
+   "list": "I",
+   "item": "Ounce glass",
+   "keywords": [
+    "ounce glass"
+   ]
+  },
+  {
+   "list": "I",
+   "item": "Oxygen mask",
+   "keywords": [
+    "oxygen mask"
+   ]
+  },
+  {
+   "list": "I",
+   "item": "Pelvic traction belt",
+   "keywords": [
+    "pelvic traction"
+   ]
+  },
+  {
+   "list": "I",
+   "item": "Pan can",
+   "keywords": [
+    "pan can"
+   ]
+  },
+  {
+   "list": "I",
+   "item": "Trolley cover",
+   "keywords": [
+    "trolley cover",
+    "trolly cover"
+   ]
+  },
+  {
+   "list": "I",
+   "item": "Urometer / urine jug",
+   "keywords": [
+    "urometer",
+    "urine jug"
+   ]
+  },
+  {
+   "list": "I",
+   "item": "Vasofix safety",
+   "keywords": [
+    "vasofix safety"
+   ]
+  },
+  {
+   "list": "II",
+   "item": "Baby charges (unless specified)",
+   "keywords": [
+    "baby charge"
+   ]
+  },
+  {
+   "list": "II",
+   "item": "Hand wash",
+   "keywords": [
+    "hand wash",
+    "handwash",
+    "hand rub"
+   ]
+  },
+  {
+   "list": "II",
+   "item": "Shoe cover",
+   "keywords": [
+    "shoe cover"
+   ]
+  },
+  {
+   "list": "II",
+   "item": "Caps",
+   "keywords": [
+    "surgical cap",
+    "head cap",
+    "bouffant cap"
+   ]
+  },
+  {
+   "list": "II",
+   "item": "Cradle charges",
+   "keywords": [
+    "cradle"
+   ]
+  },
+  {
+   "list": "II",
+   "item": "Comb",
+   "keywords": [
+    "comb"
+   ]
+  },
+  {
+   "list": "II",
+   "item": "Eau-de-cologne / room fresheners",
+   "keywords": [
+    "cologne",
+    "room freshener",
+    "air freshener"
+   ]
+  },
+  {
+   "list": "II",
+   "item": "Foot cover",
+   "keywords": [
+    "foot cover"
+   ]
+  },
+  {
+   "list": "II",
+   "item": "Gown",
+   "keywords": [
+    "gown"
+   ]
+  },
+  {
+   "list": "II",
+   "item": "Slippers",
+   "keywords": [
+    "slipper"
+   ]
+  },
+  {
+   "list": "II",
+   "item": "Tissue paper",
+   "keywords": [
+    "tissue paper",
+    "tissue roll",
+    "tissues"
+   ]
+  },
+  {
+   "list": "II",
+   "item": "Tooth paste",
+   "keywords": [
+    "tooth paste",
+    "toothpaste"
+   ]
+  },
+  {
+   "list": "II",
+   "item": "Tooth brush",
+   "keywords": [
+    "tooth brush",
+    "toothbrush"
+   ]
+  },
+  {
+   "list": "II",
+   "item": "Bed pan",
+   "keywords": [
+    "bed pan",
+    "bedpan"
+   ]
+  },
+  {
+   "list": "II",
+   "item": "Face mask",
+   "keywords": [
+    "face mask"
+   ]
+  },
+  {
+   "list": "II",
+   "item": "Flexi mask",
+   "keywords": [
+    "flexi mask"
+   ]
+  },
+  {
+   "list": "II",
+   "item": "Hand holder",
+   "keywords": [
+    "hand holder"
+   ]
+  },
+  {
+   "list": "II",
+   "item": "Sputum cup",
+   "keywords": [
+    "sputum cup"
+   ]
+  },
+  {
+   "list": "II",
+   "item": "Disinfectant lotions",
+   "keywords": [
+    "disinfectant lotion"
+   ]
+  },
+  {
+   "list": "II",
+   "item": "Luxury tax",
+   "keywords": [
+    "luxury tax"
+   ]
+  },
+  {
+   "list": "II",
+   "item": "HVAC",
+   "keywords": [
+    "hvac"
+   ]
+  },
+  {
+   "list": "II",
+   "item": "House keeping charges",
+   "keywords": [
+    "house keeping",
+    "housekeeping"
+   ]
+  },
+  {
+   "list": "II",
+   "item": "Air conditioner charges",
+   "keywords": [
+    "air condition*",
+    "a/c charge"
+   ]
+  },
+  {
+   "list": "II",
+   "item": "IM / IV injection charges",
+   "keywords": [
+    "injection charge",
+    "im/iv charge",
+    "iv charges",
+    "im charges"
+   ]
+  },
+  {
+   "list": "II",
+   "item": "Clean sheet",
+   "keywords": [
+    "clean sheet",
+    "bed sheet"
+   ]
+  },
+  {
+   "list": "II",
+   "item": "Blanket / warmer blanket",
+   "keywords": [
+    "blanket"
+   ]
+  },
+  {
+   "list": "II",
+   "item": "Admission kit",
+   "keywords": [
+    "admission kit"
+   ]
+  },
+  {
+   "list": "II",
+   "item": "Diabetic chart charges",
+   "keywords": [
+    "diabetic chart"
+   ]
+  },
+  {
+   "list": "II",
+   "item": "Documentation / administrative charges",
+   "keywords": [
+    "documentation charge",
+    "administrative charge",
+    "admin charge"
+   ]
+  },
+  {
+   "list": "II",
+   "item": "Discharge procedure charges",
+   "keywords": [
+    "discharge procedure",
+    "discharge charge"
+   ]
+  },
+  {
+   "list": "II",
+   "item": "Daily chart charges",
+   "keywords": [
+    "daily chart"
+   ]
+  },
+  {
+   "list": "II",
+   "item": "Entrance pass / visitors pass charges",
+   "keywords": [
+    "visitor pass",
+    "visitors pass",
+    "entrance pass"
+   ]
+  },
+  {
+   "list": "II",
+   "item": "Expenses related to prescription on discharge",
+   "keywords": [
+    "discharge prescription"
+   ]
+  },
+  {
+   "list": "II",
+   "item": "File opening charges",
+   "keywords": [
+    "file opening",
+    "file charge"
+   ]
+  },
+  {
+   "list": "II",
+   "item": "Incidental / miscellaneous expenses",
+   "keywords": [
+    "incidental",
+    "miscellaneous",
+    "misc. charge",
+    "misc charges",
+    "sundry"
+   ]
+  },
+  {
+   "list": "II",
+   "item": "Patient identification band / name tag",
+   "keywords": [
+    "identification band",
+    "id band",
+    "name tag",
+    "wrist band"
+   ]
+  },
+  {
+   "list": "II",
+   "item": "Pulse oximeter charges",
+   "keywords": [
+    "pulse oximeter",
+    "pulseoxymeter",
+    "pulse oxymeter"
+   ]
+  },
+  {
+   "list": "III",
+   "item": "Hair removal cream",
+   "keywords": [
+    "hair removal"
+   ]
+  },
+  {
+   "list": "III",
+   "item": "Disposable razors",
+   "keywords": [
+    "razor"
+   ]
+  },
+  {
+   "list": "III",
+   "item": "Eye pad",
+   "keywords": [
+    "eye pad"
+   ]
+  },
+  {
+   "list": "III",
+   "item": "Eye shield",
+   "keywords": [
+    "eye shield"
+   ]
+  },
+  {
+   "list": "III",
+   "item": "Camera cover",
+   "keywords": [
+    "camera cover"
+   ]
+  },
+  {
+   "list": "III",
+   "item": "DVD / CD charges",
+   "keywords": [
+    "dvd",
+    "cd charge",
+    "cd copy"
+   ]
+  },
+  {
+   "list": "III",
+   "item": "Gauze",
+   "keywords": [
+    "gauze"
+   ]
+  },
+  {
+   "list": "III",
+   "item": "Ward and theatre booking charges",
+   "keywords": [
+    "theatre booking",
+    "ot booking",
+    "ward booking"
+   ]
+  },
+  {
+   "list": "III",
+   "item": "Arthroscopy and endoscopy instruments",
+   "keywords": [
+    "arthroscopy instrument",
+    "endoscopy instrument"
+   ]
+  },
+  {
+   "list": "III",
+   "item": "Microscope cover",
+   "keywords": [
+    "microscope cover"
+   ]
+  },
+  {
+   "list": "III",
+   "item": "Surgical blades, harmonic scalpel, shaver",
+   "keywords": [
+    "surgical blade",
+    "harmonic scalpel",
+    "shaver"
+   ]
+  },
+  {
+   "list": "III",
+   "item": "Surgical drill",
+   "keywords": [
+    "surgical drill"
+   ]
+  },
+  {
+   "list": "III",
+   "item": "Eye kit",
+   "keywords": [
+    "eye kit"
+   ]
+  },
+  {
+   "list": "III",
+   "item": "Eye drape",
+   "keywords": [
+    "eye drape"
+   ]
+  },
+  {
+   "list": "III",
+   "item": "X-ray film",
+   "keywords": [
+    "x-ray film",
+    "xray film"
+   ]
+  },
+  {
+   "list": "III",
+   "item": "Boyles apparatus charges",
+   "keywords": [
+    "boyles apparatus",
+    "boyle's apparatus"
+   ]
+  },
+  {
+   "list": "III",
+   "item": "Cotton",
+   "keywords": [
+    "cotton"
+   ]
+  },
+  {
+   "list": "III",
+   "item": "Cotton bandage",
+   "keywords": [
+    "cotton bandage"
+   ]
+  },
+  {
+   "list": "III",
+   "item": "Surgical tape",
+   "keywords": [
+    "surgical tape",
+    "micropore",
+    "leucoplast"
+   ]
+  },
+  {
+   "list": "III",
+   "item": "Apron",
+   "keywords": [
+    "apron"
+   ]
+  },
+  {
+   "list": "III",
+   "item": "Tourniquet",
+   "keywords": [
+    "tourniquet",
+    "torniquet"
+   ]
+  },
+  {
+   "list": "III",
+   "item": "Orthobundle, gynaec bundle",
+   "keywords": [
+    "orthobundle",
+    "ortho bundle",
+    "gynaec bundle"
+   ]
+  },
+  {
+   "list": "IV",
+   "item": "Admission / registration charges",
+   "keywords": [
+    "admission charge",
+    "registration charge",
+    "registration fee"
+   ]
+  },
+  {
+   "list": "IV",
+   "item": "Hospitalisation for evaluation / diagnostic purpose",
+   "keywords": [
+    "evaluation purpose"
+   ]
+  },
+  {
+   "list": "IV",
+   "item": "Urine container",
+   "keywords": [
+    "urine container"
+   ]
+  },
+  {
+   "list": "IV",
+   "item": "Blood reservation and ante-natal booking charges",
+   "keywords": [
+    "blood reservation",
+    "ante natal booking",
+    "antenatal booking"
+   ]
+  },
+  {
+   "list": "IV",
+   "item": "BiPAP machine",
+   "keywords": [
+    "bipap"
+   ]
+  },
+  {
+   "list": "IV",
+   "item": "CPAP / CAPD equipment",
+   "keywords": [
+    "cpap",
+    "capd"
+   ]
+  },
+  {
+   "list": "IV",
+   "item": "Infusion pump cost",
+   "keywords": [
+    "infusion pump"
+   ]
+  },
+  {
+   "list": "IV",
+   "item": "Hydrogen peroxide, spirit, disinfectants",
+   "keywords": [
+    "hydrogen peroxide",
+    "spirit",
+    "betadine",
+    "povidone",
+    "savlon",
+    "dettol"
+   ]
+  },
+  {
+   "list": "IV",
+   "item": "Nutrition planning / dietician charges",
+   "keywords": [
+    "dietician",
+    "dietitian",
+    "nutrition planning"
+   ]
+  },
+  {
+   "list": "IV",
+   "item": "HIV kit",
+   "keywords": [
+    "hiv kit"
+   ]
+  },
+  {
+   "list": "IV",
+   "item": "Antiseptic mouthwash",
+   "keywords": [
+    "mouthwash",
+    "mouth wash"
+   ]
+  },
+  {
+   "list": "IV",
+   "item": "Lozenges",
+   "keywords": [
+    "lozenge"
+   ]
+  },
+  {
+   "list": "IV",
+   "item": "Mouth paint",
+   "keywords": [
+    "mouth paint"
+   ]
+  },
+  {
+   "list": "IV",
+   "item": "Vaccination charges",
+   "keywords": [
+    "vaccination",
+    "vaccine"
+   ]
+  },
+  {
+   "list": "IV",
+   "item": "Alcohol swabs",
+   "keywords": [
+    "alcohol swab",
+    "spirit swab"
+   ]
+  },
+  {
+   "list": "IV",
+   "item": "Scrub solution / sterillium",
+   "keywords": [
+    "scrub solution",
+    "sterillium",
+    "hand scrub"
+   ]
+  },
+  {
+   "list": "IV",
+   "item": "Glucometer and strips",
+   "keywords": [
+    "glucometer",
+    "glucostrip",
+    "gluco strip",
+    "glucose strip"
+   ]
+  },
+  {
+   "list": "IV",
+   "item": "Urine bag",
+   "keywords": [
+    "urine bag",
+    "uro bag",
+    "urobag"
+   ]
+  }
+ ]
+}

@@ -1,0 +1,8 @@
+{
+  "proportionate_deduction": {
+    "source": "IRDAI health insurance guidelines: when the room chosen costs more than the eligible room, linked charges are reduced in the same ratio, but not the cost of pharmacy and consumables, implants and medical devices, diagnostics, or ICU charges.",
+    "applies_to": ["nursing", "doctor_fees", "surgery", "other_medical"],
+    "exempt": ["room", "icu", "pharmacy", "consumables", "implants", "investigations", "non_payable"]
+  },
+  "money_places": 2
+}

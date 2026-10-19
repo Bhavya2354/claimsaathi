@@ -17,7 +17,7 @@ dist/
 htmlcov/
 
 # Runtime data (uploads, vector index, local database, downloaded policies)
-data/
+/data/
 *.log
 
 # Frontend

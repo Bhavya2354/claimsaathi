@@ -1,0 +1,15 @@
+{
+  "note": "Keyword rules for labelling bill lines without a model. A line is labelled here only when exactly one category matches; otherwise a model decides. Keywords match at word starts, case-insensitive; a trailing * marks a stem.",
+  "categories": {
+    "implants": ["implant*", "stent*", "iol", "intraocular lens", "intra ocular lens", "plate*", "screw*", "mesh", "pacemaker*", "prosthes*", "k-wire*"],
+    "icu": ["icu", "iccu", "nicu", "picu", "hdu", "intensive care", "critical care"],
+    "room": ["room rent", "room charge*", "bed charge*", "ward charge*", "boarding"],
+    "nursing": ["nursing"],
+    "consumables": ["cannula*", "syringe*", "catheter*", "suture*", "infusion set*", "consumable*", "dressing*", "drape*", "ryles tube", "foley*"],
+    "investigations": ["cbc", "x-ray", "xray", "mri", "ct scan", "ultrasound", "usg", "ecg", "2d echo", "echocardiogra*", "lab*", "test*", "culture", "lft", "kft", "rft", "serum", "blood sugar", "hba1c", "pathology", "radiology", "biopsy", "histopatholog*", "angiogra*", "doppler"],
+    "pharmacy": ["inj", "tab", "tablet*", "cap", "capsule*", "syp", "syrup", "iv fluid*", "medicine*", "pharmacy", "drug*", "ointment"],
+    "doctor_fees": ["consultant*", "consultation*", "visit*", "surgeon*", "anaesthe*", "anesthe*", "physician*", "doctor*", "rmo", "professional fee*", "ophthalmologist*", "cardiologist*", "orthopaedic*"],
+    "surgery": ["operation theatre", "ot charge*", "procedure charge*", "surgery package", "package", "surgical charge*"],
+    "other_medical": ["physiotherap*", "oxygen", "blood transfusion", "dialysis", "ambulance", "ventilator*"]
+  }
+}

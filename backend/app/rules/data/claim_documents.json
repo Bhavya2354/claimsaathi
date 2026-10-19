@@ -1,0 +1,29 @@
+{
+  "source": "Documents insurers and TPAs commonly ask for under IRDAI claim settlement norms. Always confirm the list on the insurer's claim form.",
+  "common": [
+    {"document": "Claim form, signed by the insured", "why": "Starts the claim; Part A by the insured, Part B by the hospital."},
+    {"document": "Health card or policy copy", "why": "Identifies the policy and member."},
+    {"document": "Photo ID and address proof of the patient", "why": "KYC; Aadhaar, PAN or passport."},
+    {"document": "Discharge summary", "why": "Diagnosis, treatment and dates the insurer assesses."},
+    {"document": "Final hospital bill with item-wise break-up", "why": "Lets each line be assessed instead of a lump sum."},
+    {"document": "All investigation reports", "why": "Supports the diagnosis and the need for admission."},
+    {"document": "Doctor's first consultation and referral notes", "why": "Shows when symptoms started, relevant to waiting periods."}
+  ],
+  "reimbursement": [
+    {"document": "Original payment receipts", "why": "Proof of what you paid."},
+    {"document": "Pharmacy bills with prescriptions", "why": "Each medicine must match a prescription."},
+    {"document": "Cancelled cheque or bank details (NEFT)", "why": "Where the insurer sends the money."},
+    {"document": "Pre- and post-hospitalisation bills", "why": "Covered for the days stated in the policy if filed in time."}
+  ],
+  "cashless": [
+    {"document": "Pre-authorisation request from the hospital", "why": "The insurer approves the estimate before or at admission."},
+    {"document": "Cost estimate from the hospital", "why": "Basis for the approved amount."}
+  ],
+  "accident": [
+    {"document": "FIR or medico-legal certificate (MLC)", "why": "Needed when the admission follows an accident."}
+  ],
+  "surgery": [
+    {"document": "Operation theatre notes", "why": "Confirms the procedure done."},
+    {"document": "Implant invoice and barcode stickers", "why": "Implants are paid at invoice cost."}
+  ]
+}
