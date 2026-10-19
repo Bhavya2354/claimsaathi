@@ -1,8 +1,8 @@
 """Bill Auditor: labels each bill line, then hands the arithmetic to the rules engine.
 
-Lines that match the IRDAI non-payable lists are labelled without a model call.
-The rest go to a fast model in batches; a line the model skips is kept as
-`other_medical` with a note, so nothing silently drops out of the totals.
+Lines that match the IRDAI non-payable lists or an unambiguous billing keyword are
+labelled without a model call. The rest go to a fast model in batches; a line the
+model skips is kept as `other_medical` with a note, so nothing drops out of the totals.
 """
 
 import asyncio
@@ -18,6 +18,7 @@ from app.llm.router import ModelRouter
 from app.llm.types import Message, Task
 from app.rules.catalogue import NonPayableCatalogue
 from app.rules.engine import CoverageResult, assess
+from app.rules.line_rules import LineRules
 from app.rules.terms import CaseFacts, LabelledLine, PolicyTerms
 
 _LABEL_ROLE = """You classify lines of Indian hospital bills for a health insurance audit.
@@ -54,10 +55,15 @@ class AuditOutcome(BaseModel):
 
 class BillAuditor:
     def __init__(
-        self, router: ModelRouter, catalogue: NonPayableCatalogue, settings: AgentSettings
+        self,
+        router: ModelRouter,
+        catalogue: NonPayableCatalogue,
+        rules: LineRules,
+        settings: AgentSettings,
     ) -> None:
         self._router = router
         self._catalogue = catalogue
+        self._rules = rules
         self._settings = settings
 
     async def label(self, lines: Sequence[BillLine], tags: dict[str, str]) -> list[LabelledLine]:
@@ -65,12 +71,17 @@ class BillAuditor:
         pending: list[tuple[int, BillLine]] = []
         for index, line in enumerate(lines):
             item = self._catalogue.match(line.description)
+            ruled = self._rules.label(line.description)
             if item is not None and line.amount >= 0:
                 labelled[index] = LabelledLine(
                     line=line,
                     category=LineCategory.NON_PAYABLE,
                     reason=f"IRDAI List {item.list_code}: {item.list_title}",
                     catalogue_item=item.item,
+                )
+            elif ruled is not None:
+                labelled[index] = LabelledLine(
+                    line=line, category=ruled, reason="Standard billing term."
                 )
             else:
                 pending.append((index, line))

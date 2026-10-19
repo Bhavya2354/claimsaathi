@@ -11,6 +11,7 @@ from collections.abc import Sequence
 
 from pydantic import BaseModel, Field
 
+from app.documents.bill_table import parse_bill_table
 from app.documents.reader import Page
 from app.domain import Bill, BillLine, DischargeSummary, DocumentKind, RejectionLetter
 from app.llm.prompting import document_block, system_prompt
@@ -117,6 +118,9 @@ class Extractor:
         return answer.kind
 
     async def bill(self, pages: Sequence[Page], tags: dict[str, str]) -> Bill:
+        # A table that adds up to its printed total needs no model.
+        if (parsed := parse_bill_table(pages)) is not None:
+            return parsed
         groups = _chunks(pages, _BILL_CHUNK_CHARS)
         parts = await asyncio.gather(
             *(

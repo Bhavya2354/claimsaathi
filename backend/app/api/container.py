@@ -31,6 +31,7 @@ from app.documents.reader import DocumentReader
 from app.llm.router import ModelRouter, build_router
 from app.policy.index import PolicyIndex
 from app.rules.catalogue import load_catalogue
+from app.rules.line_rules import load_line_rules
 from app.services.cases import CaseService
 from app.services.claims import ClaimService
 from app.services.ingest import IngestService
@@ -88,7 +89,7 @@ def build_container() -> Container:
     graph = ClaimGraph(
         router=router,
         expert=expert,
-        auditor=BillAuditor(router, load_catalogue(), agents),
+        auditor=BillAuditor(router, load_catalogue(), load_line_rules(), agents),
         advocate=ClaimAdvocate(router, index, retrieval),
         checker=Checker(router, retrieval),
         settings=agents,
