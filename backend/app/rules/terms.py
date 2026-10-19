@@ -67,7 +67,8 @@ class PolicyTerms(_Term):
     waiting_periods: list[WaitingPeriod] = Field(default_factory=list)
     sub_limits: list[SubLimit] = Field(default_factory=list)
     proportionate_deduction: bool = Field(
-        default=True, description="Whether a costlier room scales down linked charges."
+        default=False,
+        description="Whether a clause scales down linked charges for a costlier room.",
     )
     proportionate_clause_ids: list[str] = Field(default_factory=list)
 

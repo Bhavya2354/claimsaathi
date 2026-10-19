@@ -61,7 +61,8 @@ For each reason the insurer gives, decide from the policy clauses and case facts
 policy supports it: supported, not_supported, partly_supported, or unclear when the documents
 do not show enough. Explain in plain words and cite clause IDs. Recommend `appeal` when at
 least one significant reason is not supported, `send_documents` when the insurer raised a query
-that documents can answer, otherwise `accept`. Be fair: say so when the insurer is right."""
+that documents can answer, otherwise `accept`. Be fair: say so when the insurer is right.
+Keep each explanation to two short sentences and the summary to two sentences."""
 
 _LETTER_ROLES = {
     LetterKind.GRIEVANCE: """You write grievance letters from a policyholder to their health

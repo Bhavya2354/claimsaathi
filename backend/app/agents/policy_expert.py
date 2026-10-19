@@ -35,7 +35,10 @@ given and fill in the requested terms. Rules:
 - Every term you fill must list the IDs of the clauses it came from in `clause_ids`, using the
   bracketed IDs shown (for example "a1b2c3-014"). Never invent an ID.
 - Convert waiting periods to days (1 month = 30 days, 1 year = 365 days).
-- Percentages are numbers, e.g. 1 for "1% of sum insured"."""
+- Percentages are numbers, e.g. 1 for "1% of sum insured".
+- proportionate_deduction is true only when a clause says linked charges are reduced in
+  proportion when a costlier room is chosen. It is false when the policy says they are not
+  reduced, or says nothing about it."""
 
 _GROUPS: dict[str, tuple[str, ...]] = {
     "limits": (
@@ -68,7 +71,10 @@ class _Limits(BaseModel):
         default=None, description="`applies` is true only if this case meets the condition."
     )
     deductible: Deductible | None = None
-    proportionate_deduction: bool = True
+    proportionate_deduction: bool = Field(
+        default=False,
+        description="True only if a clause reduces linked charges for a costlier room.",
+    )
     proportionate_clause_ids: list[str] = Field(default_factory=list)
 
     @field_validator("copay", "deductible", "room_rent", "icu_rent", mode="before")

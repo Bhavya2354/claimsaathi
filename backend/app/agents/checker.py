@@ -28,8 +28,10 @@ _TOLERANCE = Decimal(1)
 _MIN_LETTER_CHARS = 300
 
 _SUPPORT_ROLE = """You verify answers about health insurance policies. Given policy clauses and
-a statement that cites them, list each claim in the statement that the clauses do not support
-or that contradicts them. Paraphrase is fine; only flag what is unsupported or wrong."""
+a statement that cites them, list only claims that the clauses contradict, or that state a figure,
+limit or rule found nowhere in the clauses. Paraphrase, summaries and conclusions drawn from the
+clauses are fine. A claim that something is not allowed because a clause says so is supported.
+When in doubt, do not flag."""
 
 
 class CheckReport(BaseModel):
@@ -68,6 +70,8 @@ def _terms_issues(terms: PolicyTerms, allowed: set[str]) -> list[str]:
         cited.extend(sub.clause_ids)
         if not sub.clause_ids:
             issues.append(f"The sub-limit for {sub.treatment} has no clause citation.")
+    if terms.proportionate_deduction and not terms.proportionate_clause_ids:
+        issues.append("The proportionate deduction has no clause citation.")
     if terms.sum_insured is not None and not terms.clause_ids:
         issues.append("The sum insured has no clause citation.")
     if unknown := _unknown_ids(cited, allowed):
@@ -123,10 +127,11 @@ class Checker:
             if reason.verdict.value in {"supported", "not_supported"} and not reason.clause_ids:
                 issues.append(f"The verdict on '{reason.insurer_reason[:60]}' cites no clause.")
         if not issues:
-            statement = "\n".join(
-                f"{r.insurer_reason}: {r.verdict.value}. {r.explanation}" for r in review.reasons
-            )
-            issues.extend(await self._support(statement, cited, shown, tags))
+            # Only the assessment is checked. The insurer's reason is quoted, not asserted, and a
+            # verdict of "not supported" exists precisely because the clauses do not back it.
+            statement = "\n".join(r.explanation for r in review.reasons if r.clause_ids)
+            if statement:
+                issues.extend(await self._support(statement, cited, shown, tags))
         return CheckReport(passed=not issues, issues=issues)
 
     def letter(

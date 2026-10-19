@@ -14,6 +14,7 @@ with the issues as feedback, at most `checker_max_retries` times; after that the
 result is returned marked unverified rather than hidden.
 """
 
+import logging
 import operator
 from dataclasses import dataclass
 from decimal import Decimal
@@ -42,6 +43,8 @@ from app.llm.types import Message, Task
 from app.policy.chunking import Clause
 from app.rules.checklist import Checklist, build_checklist
 from app.rules.terms import CaseFacts, LabelledLine
+
+log = logging.getLogger(__name__)
 
 
 class Intent(StrEnum):
@@ -439,6 +442,11 @@ class ClaimGraph:
                 retry = "letter"
         attempts = state.get("attempts", 0) + 1
         verdict = "passed" if report.passed else f"found {len(report.issues)} issues"
+        if not report.passed:
+            log.info(
+                "checker sent work back",
+                extra={"case": state["snapshot"].case_id, "to": retry, "issues": report.issues},
+            )
         return {
             "report": report,
             "attempts": attempts,

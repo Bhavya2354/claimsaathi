@@ -45,6 +45,7 @@ def terms() -> PolicyTerms:
     return PolicyTerms(
         sum_insured=Decimal(500_000),
         room_rent=RoomLimit(basis="percent_of_sum_insured", value=Decimal(1), clause_ids=["r"]),
+        proportionate_deduction=True,
     )
 
 
@@ -203,6 +204,7 @@ def test_fixed_rupee_room_limit_and_icu(facts: CaseFacts) -> None:
         sum_insured=Decimal(1_000_000),
         room_rent=RoomLimit(basis="amount_per_day", value=Decimal(4_000)),
         icu_rent=RoomLimit(basis="amount_per_day", value=Decimal(8_000)),
+        proportionate_deduction=True,
     )
     result = assess(
         terms,
