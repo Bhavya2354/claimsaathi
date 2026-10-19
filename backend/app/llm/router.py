@@ -279,8 +279,9 @@ def build_router(
     settings: ModelCallSettings,
     recorder: CallRecorder = _discard,
 ) -> ModelRouter:
+    options = providers.provider_request_options
     endpoints = {
-        name: Endpoint(base_url=url, api_key=key)
+        name: Endpoint(base_url=url, api_key=key, options=options.get(name, {}))
         for name, (url, key) in providers.endpoints().items()
     }
     raw = {

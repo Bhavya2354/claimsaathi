@@ -156,3 +156,21 @@ def test_route_entries_keep_colons_in_model_ids() -> None:
 def test_disabled_providers_are_dropped_from_chains() -> None:
     router = _router(lambda _: _answer("x"), ["alpha:m1", "gamma:m3", "beta:m2"])
     assert [str(m) for m in router.chain(Task.FAST)] == ["alpha:m1", "beta:m2"]
+
+
+async def test_provider_options_are_sent_with_every_request() -> None:
+    sent: list[dict[str, object]] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        sent.append(json.loads(request.content))
+        return _answer("ok")
+
+    http = httpx.AsyncClient(transport=httpx.MockTransport(handler))
+    endpoint = Endpoint("http://local.test/v1", None, {"reasoning_effort": "none"})
+    router = ModelRouter(
+        ChatClient(http, {"local": endpoint}),
+        {Task.FAST: [ModelRef.parse("local:m")]},
+        ModelCallSettings(),
+    )
+    await router.complete(Task.FAST, MESSAGES)
+    assert sent[0]["reasoning_effort"] == "none"

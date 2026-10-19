@@ -8,7 +8,7 @@ credentials, model names) have no defaults; only operational tunables do.
 import os
 from functools import lru_cache
 from pathlib import Path
-from typing import Literal
+from typing import Any, Literal
 
 from pydantic import Field, HttpUrl, SecretStr, ValidationError, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -69,6 +69,10 @@ class ProviderSettings(_Section):
     mistral_api_key: SecretStr | None = None
     github_models_base_url: HttpUrl | None = None
     github_models_api_key: SecretStr | None = None
+    provider_request_options: dict[str, dict[str, Any]] = Field(
+        default_factory=dict,
+        description="Extra request fields per provider, keyed by provider name.",
+    )
 
     def endpoints(self) -> dict[str, tuple[str, SecretStr | None]]:
         """Enabled providers as name -> (base URL, key). Hosted providers need a key."""

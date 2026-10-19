@@ -6,7 +6,7 @@ Groq, Gemini, Ollama, OpenRouter, Cerebras, Mistral and GitHub Models all expose
 
 import re
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from http import HTTPStatus
 from typing import Any
 
@@ -37,6 +37,8 @@ class RateLimitedError(ProviderError):
 class Endpoint:
     base_url: str
     api_key: SecretStr | None
+    # Provider-specific request fields, e.g. switching off local models' thinking mode.
+    options: dict[str, Any] = field(default_factory=dict)
 
 
 def _encode(message: Message) -> dict[str, Any]:
@@ -85,6 +87,7 @@ class ChatClient:
             "messages": [_encode(m) for m in messages],
             "temperature": temperature,
             "max_tokens": max_tokens,
+            **endpoint.options,
         }
         if json_mode and model not in self._no_json_mode:
             body["response_format"] = {"type": "json_object"}
