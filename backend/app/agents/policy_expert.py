@@ -8,8 +8,9 @@ and give the model less to confuse.
 import asyncio
 from collections.abc import Sequence
 from dataclasses import dataclass
+from typing import Any
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 from app.agents.context import describe_facts, pack_clauses
 from app.config import RetrievalSettings
@@ -69,6 +70,16 @@ class _Limits(BaseModel):
     deductible: Deductible | None = None
     proportionate_deduction: bool = True
     proportionate_clause_ids: list[str] = Field(default_factory=list)
+
+    @field_validator("copay", "deductible", "room_rent", "icu_rent", mode="before")
+    @classmethod
+    def _empty_term_is_absent(cls, value: Any) -> Any:
+        """Models often write "no co-payment" as a term with a null figure; that means none."""
+        if isinstance(value, dict):
+            figure = value.get("percent", value.get("amount", value.get("basis", "")))
+            if figure is None:
+                return None
+        return value
 
 
 class _Waiting(BaseModel):

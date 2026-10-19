@@ -75,3 +75,13 @@ def test_uncited_figures_are_grounded_only_when_a_clause_prints_them() -> None:
     schedule = Clause("s-001", "Policy schedule", 1, 1, "Sum insured: Rs 5,00,000.00")
     assert _clauses_stating(500_000.0, [CLAUSES[0], schedule]) == ["s-001"]
     assert _clauses_stating(300_000.0, [CLAUSES[0], schedule]) == []
+
+
+def test_terms_written_with_null_figures_mean_absent() -> None:
+    from app.agents.policy_expert import _Limits
+
+    limits = _Limits.model_validate(
+        {"copay": {"percent": None, "applies": False}, "deductible": {"amount": None}}
+    )
+    assert limits.copay is None
+    assert limits.deductible is None
