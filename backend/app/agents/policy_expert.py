@@ -118,10 +118,16 @@ term you use. Cite the clause IDs your answer depends on. If the clauses do not 
 question, say so and set found_in_policy to false; never guess. You do not give medical or
 legal advice."""
 
-_RELATE_ROLE = """You compare one hospital admission with a health insurance policy. Decide from
-the clauses and case details whether the treated illness was pre-existing, whether it falls in a
-specific-disease waiting list, and which sub-limit (if any) applies. Use the exact treatment
-name from the sub-limit list. When the case details do not show it, answer false or null."""
+_RELATE_ROLE = """You compare one hospital admission with a health insurance policy. Decide:
+1. treatment_is_pre_existing: true when the treated illness, or the underlying disease it is a
+   complication of, existed before the policy started. Example: a diabetic foot ulcer in a patient
+   with diabetes for 6 years, under a policy that started 2 years ago, is pre-existing. A new
+   acute illness with no related past history is not. Compare how long the condition has existed
+   with the days of cover at admission.
+2. specific_disease_matched: the entry of the specific-disease waiting list this treatment falls
+   in, if any.
+3. sub_limit_matched: the exact treatment name from the sub-limit list that applies, if any.
+Decide only from the clauses and case details. When they do not show it, answer false or null."""
 
 
 def _rupee_spellings(amount: float) -> set[str]:

@@ -72,6 +72,12 @@ def run_eval(
     report: Annotated[Path, typer.Option(help="Folder for report.json and report.md.")],
     limit: Annotated[int | None, typer.Option(min=1, help="Score only the first N cases.")] = None,
     chat: Annotated[bool, typer.Option(help="Include the multi-turn chat questions.")] = True,
+    scenario: Annotated[
+        list[str] | None, typer.Option(help="Only these scenarios; repeat the option.")
+    ] = None,
+    pause: Annotated[
+        float, typer.Option(min=0, help="Seconds between cases, to stay inside free quotas.")
+    ] = 0.0,
 ) -> None:
     """Run every case through the full pipeline and score it against the truth."""
     # The eval uses its own database and vector store, never the app's.
@@ -84,7 +90,10 @@ def run_eval(
     from app.evals.runner import EvalRunner, render_markdown, summarise
     from app.evals.synthetic import load_manifest
 
-    cases = load_manifest(data / "manifest.json")[:limit]
+    cases = [
+        c for c in load_manifest(data / "manifest.json") if not scenario or c.scenario in scenario
+    ]
+    cases = cases[:limit]
 
     async def run() -> dict[str, object]:
         container = build_container()
@@ -98,6 +107,8 @@ def run_eval(
                 outcome = score.error or f"payout ok={score.payout_ok}"
                 typer.echo(f"[{number}/{len(cases)}] {case.case_id}: {outcome}")
                 scores.append(score)
+                if pause and number < len(cases):
+                    await asyncio.sleep(pause)
             return summarise(scores, await runner.model_usage(started))
         finally:
             await container.close()

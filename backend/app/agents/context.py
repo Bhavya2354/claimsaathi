@@ -46,6 +46,11 @@ def describe_facts(facts: CaseFacts) -> str:
         "Room rent charged per day": facts.room_rent_per_day,
         "Accident": facts.is_accident,
         "Conditions before admission": ", ".join(facts.pre_existing_conditions) or None,
+        "Days of cover at admission": (
+            (facts.admission_date - facts.policy_start_date).days
+            if facts.admission_date and facts.policy_start_date
+            else None
+        ),
     }
     lines = [f"- {key}: {value}" for key, value in rows.items() if value not in (None, "")]
     return "\n".join(lines) or "- No case details given."
