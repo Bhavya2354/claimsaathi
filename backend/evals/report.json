@@ -1,157 +1,65 @@
 {
- "generated_at": "2026-10-19T08:00:31.276618+00:00",
+ "generated_at": "2026-10-19T15:55:30.186986+00:00",
  "cases": 28,
- "failed": 7,
- "payout_within_2pct": 0.762,
+ "failed": 0,
+ "payout_within_2pct": 0.929,
  "median_payout_error_pct": 0.0,
- "decision_accuracy": 0.81,
+ "decision_accuracy": 1.0,
  "line_recall": 1.0,
  "label_accuracy": 1.0,
  "terms_accuracy": {
   "cataract_sub_limit": 1.0,
   "copay": 1.0,
   "pre_existing_wait": 1.0,
-  "proportionate_clause": 0.952,
-  "room_rent": 1.0
+  "proportionate_clause": 1.0,
+  "room_rent": 0.929
  },
  "audit_verified": 1.0,
- "review_verdict_accuracy": 0.833,
- "review_recommendation_accuracy": 0.833,
- "letter_verified": 1.0,
+ "review_verdict_accuracy": 0.5,
+ "review_recommendation_accuracy": 1.0,
+ "letter_verified": 0.5,
  "chat": {
-  "turns": 126,
-  "correct": 0.897,
-  "cited": 0.929,
-  "follow_up_correct": 0.984,
-  "long_answer_correct": 1.0,
-  "median_seconds": 2.2
+  "turns": 168,
+  "correct": 0.821,
+  "cited": 1.0,
+  "follow_up_correct": 0.988,
+  "long_answer_correct": 0.964,
+  "median_seconds": 5.8
  },
  "median_seconds": {
-  "ingest": 3.6,
-  "audit": 30.6,
-  "review": 11.6,
-  "letter": 38.5
+  "ingest": 102.3,
+  "audit": 0.0,
+  "review": 16.0,
+  "letter": 189.3
  },
  "payout_by_scenario": {
   "cataract_sub_limit": 1.0,
-  "fair_rejection": 0.333,
-  "pre_existing_wait": 0.333,
+  "fair_rejection": 1.0,
+  "pre_existing_wait": 1.0,
   "room_upgrade": 1.0,
   "senior_copay": 1.0,
-  "unfair_rejection": 0.667,
+  "unfair_rejection": 0.5,
   "within_limits": 1.0
  },
  "models": [
   {
    "task": "fast",
-   "model": "gemini:gemini-3.5-flash-lite",
-   "attempts": 34,
-   "ok": 34,
+   "model": "ollama:qwen3.5-4b-8k",
+   "attempts": 237,
+   "ok": 237,
    "rate_limited": 0,
    "invalid_output": 0,
-   "median_ms": 939
-  },
-  {
-   "task": "fast",
-   "model": "groq:openai/gpt-oss-20b",
-   "attempts": 218,
-   "ok": 193,
-   "rate_limited": 13,
-   "invalid_output": 11,
-   "median_ms": 690
+   "median_ms": 827
   },
   {
    "task": "reasoning",
-   "model": "gemini:gemini-3.5-flash",
-   "attempts": 37,
-   "ok": 8,
-   "rate_limited": 25,
-   "invalid_output": 0,
-   "median_ms": 4975
-  },
-  {
-   "task": "reasoning",
-   "model": "gemini:gemini-3.8-flash",
-   "attempts": 23,
-   "ok": 16,
-   "rate_limited": 4,
-   "invalid_output": 2,
-   "median_ms": 5828
-  },
-  {
-   "task": "reasoning",
-   "model": "groq:openai/gpt-oss-120b",
-   "attempts": 185,
-   "ok": 119,
-   "rate_limited": 66,
-   "invalid_output": 0,
-   "median_ms": 1513
-  },
-  {
-   "task": "reasoning",
-   "model": "groq:qwen/qwen3.8-27b",
-   "attempts": 124,
-   "ok": 81,
-   "rate_limited": 43,
-   "invalid_output": 0,
-   "median_ms": 588
-  },
-  {
-   "task": "reasoning",
-   "model": "ollama:qwen3.5:9b",
-   "attempts": 6,
-   "ok": 0,
+   "model": "ollama:qwen3.5-4b-8k",
+   "attempts": 438,
+   "ok": 438,
    "rate_limited": 0,
    "invalid_output": 0,
-   "median_ms": null
-  },
-  {
-   "task": "reasoning",
-   "model": "openrouter:nvidia/nemotron-3-super-120b-a12b:free",
-   "attempts": 53,
-   "ok": 47,
-   "rate_limited": 5,
-   "invalid_output": 1,
-   "median_ms": 14378
-  },
-  {
-   "task": "reasoning",
-   "model": "openrouter:nvidia/nemotron-3-ultra-550b-a55b:free",
-   "attempts": 4,
-   "ok": 0,
-   "rate_limited": 4,
-   "invalid_output": 0,
-   "median_ms": null
+   "median_ms": 6123
   }
  ],
- "errors": [
-  {
-   "case": "case-021-room_upgrade",
-   "error": "ModelUnavailableError: reasoning: every model failed (groq:openai/gpt-oss-120b: cooling down; gemini:gemini-3.5-flash: cooling down; groq:qwen/qwen3.8-27b: cooling down; openrouter:nvidia/nemotron-3-super-120b-a12b:free: cooling down; gemini:gemini-3.8-flash: rate limited; openrouter:nvidia/nemotron"
-  },
-  {
-   "case": "case-022-within_limits",
-   "error": "ModelUnavailableError: reasoning: every model failed (groq:openai/gpt-oss-120b: cooling down; gemini:gemini-3.5-flash: rate limited; groq:qwen/qwen3.8-27b: rate limited; openrouter:nvidia/nemotron-3-super-120b-a12b:free: rate limited; gemini:gemini-3.8-flash: rate limited; openrouter:nvidia/nemotron"
-  },
-  {
-   "case": "case-023-senior_copay",
-   "error": "ModelUnavailableError: reasoning: every model failed (groq:openai/gpt-oss-120b: cooling down; gemini:gemini-3.5-flash: rate limited; groq:qwen/qwen3.8-27b: rate limited; openrouter:nvidia/nemotron-3-super-120b-a12b:free: rate limited; gemini:gemini-3.8-flash: rate limited; openrouter:nvidia/nemotron"
-  },
-  {
-   "case": "case-024-cataract_sub_limit",
-   "error": "ModelUnavailableError: reasoning: every model failed (groq:openai/gpt-oss-120b: cooling down; gemini:gemini-3.5-flash: cooling down; groq:qwen/qwen3.8-27b: rate limited; openrouter:nvidia/nemotron-3-super-120b-a12b:free: rate limited; gemini:gemini-3.8-flash: rate limited; openrouter:nvidia/nemotron"
-  },
-  {
-   "case": "case-025-pre_existing_wait",
-   "error": "ModelUnavailableError: reasoning: every model failed (groq:openai/gpt-oss-120b: cooling down; gemini:gemini-3.5-flash: cooling down; groq:qwen/qwen3.8-27b: rate limited; openrouter:nvidia/nemotron-3-super-120b-a12b:free: cooling down; gemini:gemini-3.8-flash: cooling down; openrouter:nvidia/nemotron"
-  },
-  {
-   "case": "case-026-unfair_rejection",
-   "error": "RuntimeError: document failed: rejection.pdf: reasoning: every model failed (groq:openai/gpt-oss-120b: cooling down; gemini:gemini-3.5-flash: cooling down; groq:qwen/qwen3.8-27b: cooling down; openrouter:nvidia/nemotron-3-super-120b-a12b:free: cooling down; gemini:gemini-3.8-flash: cooling down; ope"
-  },
-  {
-   "case": "case-027-fair_rejection",
-   "error": "RuntimeError: document failed: rejection.pdf: reasoning: every model failed (groq:openai/gpt-oss-120b: cooling down; gemini:gemini-3.5-flash: cooling down; groq:qwen/qwen3.8-27b: cooling down; openrouter:nvidia/nemotron-3-super-120b-a12b:free: cooling down; gemini:gemini-3.8-flash: cooling down; ope"
-  }
- ]
+ "errors": []
 }

@@ -91,7 +91,36 @@ true terms and labels through the tested rules engine, so the evaluation measure
 labelling, citing and judging. Chat is scored on multi-turn conversations, including follow-ups and
 long answers.
 
-Results from the latest run are in [backend/evals/report.md](backend/evals/report.md).
+### Latest results
+
+28 synthetic cases across 7 scenarios, run fully offline on a 4 GB laptop GPU with one local model
+(`qwen3.5:4b`, 8k context, thinking off). Full report: [backend/evals/report.md](backend/evals/report.md).
+
+| Metric | Result |
+| --- | --- |
+| Settlement within 2% of the true amount | **93%** (26 of 28; median error 0.0%) |
+| Payable / not payable decision | **100%** |
+| Policy terms read correctly (room rent, co-pay, waiting period, sub-limit, proportionate clause) | **93–100%** |
+| Audits passing the checker | **100%** |
+| Appeal or accept recommendation on insurer letters | **100%** |
+| Chat answers with the expected fact / follow-up turns / long answers | **82% / 99% / 96%** |
+| Chat answers citing a policy clause | **100%** |
+| Model calls returning invalid output | **0 of 675** |
+
+Where it is weaker, on this small local model:
+
+- Judging each individual insurer reason scored 50%: the overall appeal/accept call was right every
+  time, but the model often marks a partly valid insurer reason as "partly supported" rather than
+  "not supported".
+- Half the letters failed the checker on the first draft because the model wrote a rupee figure
+  that is not in the amount table. The checker caught every one; none reached the user unflagged.
+- Letters take about three minutes on a 4 GB GPU. With the hosted free models (Groq, Gemini) every
+  step, letters included, runs in well under 30 seconds.
+
+Bill lines are read by a table parser that only accepts a bill whose rows add up to its printed
+total, and labelled by keyword rules before any model is asked. The synthetic bills use common
+Indian billing terms, so these rules score higher here than they would on unusual real bills,
+where the model fallback does more of the work.
 
 ## Running locally
 
