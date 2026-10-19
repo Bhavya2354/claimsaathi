@@ -15,7 +15,7 @@ from pydantic import SecretStr
 
 from app.llm.types import Completion, Message, ModelRef
 
-_THINK_BLOCK = re.compile(r"<think>.*?</think>", re.DOTALL | re.IGNORECASE)
+_THINK_BLOCK = re.compile(r"<(think|thought)>.*?</>", re.DOTALL | re.IGNORECASE)
 
 
 class ProviderError(Exception):
