@@ -94,6 +94,17 @@ def build_container() -> Container:
         checker=Checker(router, retrieval),
         settings=agents,
     )
+    claims = ClaimService(sessions, graph, masker, agents.chat_history_turns)
+    ingest = IngestService(
+        sessions=sessions,
+        reader=reader,
+        masker=masker,
+        extractor=Extractor(router),
+        index=index,
+        retrieval=retrieval,
+        limits=limits,
+        after_ready=claims.prepare,
+    )
     return Container(
         engine=engine,
         sessions=sessions,
@@ -102,16 +113,8 @@ def build_container() -> Container:
         index=index,
         masker=masker,
         cases=CaseService(sessions, index, limits),
-        ingest=IngestService(
-            sessions=sessions,
-            reader=reader,
-            masker=masker,
-            extractor=Extractor(router),
-            index=index,
-            retrieval=retrieval,
-            limits=limits,
-        ),
-        claims=ClaimService(sessions, graph, masker, agents.chat_history_turns),
+        ingest=ingest,
+        claims=claims,
         reads=CaseReads(masker, index),
         tracer=tracer,
     )

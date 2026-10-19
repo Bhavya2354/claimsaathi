@@ -6,6 +6,8 @@ second transaction. Expensive readings (policy terms, bill labels) are cached on
 the case and dropped when a document they depend on changes.
 """
 
+import dataclasses
+import logging
 from collections.abc import Sequence
 from decimal import Decimal
 from typing import Any
@@ -14,7 +16,7 @@ from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from sqlalchemy.orm import selectinload
 
-from app.agents.advocate import LetterKind
+from app.agents.advocate import LetterKind, ReviewResult
 from app.agents.graph import CaseSnapshot, ClaimGraph, GraphState, Intent
 from app.agents.policy_expert import TermsReading
 from app.db.models import Analysis, Case, ChatMessage, Document, Letter, new_id, utcnow
@@ -33,6 +35,8 @@ from app.services.views import (
     RejectionSummary,
     ReviewView,
 )
+
+log = logging.getLogger(__name__)
 
 
 class MissingDocumentsError(AppError):
@@ -123,6 +127,21 @@ def _cited_in_terms(reading: TermsReading) -> set[str]:
     return ids
 
 
+def _review_of(saved: Analysis | None, letter: Document | None) -> ReviewResult | None:
+    """A saved review still applies only if it is newer than the insurer letter it judged."""
+    if saved is None or letter is None or not saved.verified:
+        return None
+    if saved.created_at < letter.created_at:
+        return None
+    return ReviewResult.model_validate(saved.result["review"])
+
+
+def _context_of(saved: Analysis | None) -> tuple[Clause, ...]:
+    if saved is None:
+        return ()
+    return tuple(Clause(**raw) for raw in saved.result.get("context_clauses", []))
+
+
 class ClaimService:
     def __init__(
         self,
@@ -136,14 +155,37 @@ class ClaimService:
         self._masker = masker
         self._history_turns = history_turns
 
-    async def _load(self, case_id: str) -> Case:
+    async def _load(self, case_id: str) -> tuple[Case, Analysis | None]:
         async with self._sessions() as session:
             case = await session.scalar(
                 select(Case).where(Case.id == case_id).options(selectinload(Case.documents))
             )
+            review = await session.scalar(
+                select(Analysis)
+                .where(Analysis.case_id == case_id, Analysis.intent == Intent.REVIEW.value)
+                .order_by(Analysis.created_at.desc())
+                .limit(1)
+            )
         if case is None:
             raise NotFoundError("case not found")
-        return case
+        return case, review
+
+    async def prepare(self, case_id: str) -> None:
+        """Read the policy terms in the background, so requests find them ready."""
+        try:
+            case, _ = await self._load(case_id)
+            if case.terms_reading is not None or not _ready(case, DocumentKind.POLICY):
+                return
+            snapshot, _ = self.snapshot(case)
+            reading = await self._graph.read_terms(snapshot)
+            if reading is None:
+                return
+            async with transaction(self._sessions) as session:
+                stored = await session.get(Case, case_id)
+                if stored is not None and stored.terms_reading is None:
+                    stored.terms_reading = reading.model_dump(mode="json")
+        except (AppError, NotFoundError):
+            log.warning("policy terms were not prepared", extra={"case": case_id})
 
     def snapshot(
         self,
@@ -151,6 +193,7 @@ class ClaimService:
         *,
         bill: Bill | None = None,
         labelled: list[LabelledLine] | None = None,
+        saved_review: Analysis | None = None,
     ) -> tuple[CaseSnapshot, str]:
         """Returns the snapshot and where its bill came from."""
         source = "form" if bill is not None else "bill"
@@ -182,6 +225,8 @@ class ClaimService:
                     TermsReading.model_validate(case.terms_reading) if case.terms_reading else None
                 ),
                 labelled=labelled if labelled is not None else cached_labels,
+                review=_review_of(saved_review, letters[-1] if letters else None),
+                review_clauses=_context_of(saved_review),
                 parties=_parties(vault),
             ),
             source,
@@ -196,8 +241,10 @@ class ClaimService:
         bill: Bill | None = None,
         labelled: list[LabelledLine] | None = None,
     ) -> AuditView | ReviewView | LetterView:
-        case = await self._load(case_id)
-        snapshot, source = self.snapshot(case, bill=bill, labelled=labelled)
+        case, saved_review = await self._load(case_id)
+        snapshot, source = self.snapshot(
+            case, bill=bill, labelled=labelled, saved_review=saved_review
+        )
         state = await self._graph.run(snapshot, intent, letter_kind=letter_kind)
         if "message" in state:
             raise MissingDocumentsError(state["message"])
@@ -229,8 +276,8 @@ class ClaimService:
         return _expect(await self.run(case_id, Intent.LETTER, letter_kind=kind), LetterView)
 
     async def chat(self, case_id: str, text: str) -> ChatReply:
-        case = await self._load(case_id)
-        snapshot, source = self.snapshot(case)
+        case, saved_review = await self._load(case_id)
+        snapshot, source = self.snapshot(case, saved_review=saved_review)
         async with self._sessions() as session:
             earlier = list(
                 await session.scalars(
@@ -349,6 +396,7 @@ class ClaimService:
             ).model_dump(mode="json"),
             "coverage": audit.coverage.model_dump(mode="json") if audit else None,
             "clauses": [c.model_dump() for c in _clause_views(clauses, cited)],
+            "context_clauses": [dataclasses.asdict(c) for c in clauses],
         }
         verification = self._verification(state)
         row = Analysis(

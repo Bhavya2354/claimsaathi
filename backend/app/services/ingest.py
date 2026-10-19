@@ -11,6 +11,7 @@ one at a time because they share that case's PII vault.
 import asyncio
 import logging
 from collections import defaultdict
+from collections.abc import Awaitable, Callable
 from typing import Any
 
 from sqlalchemy import select
@@ -30,6 +31,7 @@ from app.policy.index import PolicyIndex
 log = logging.getLogger(__name__)
 
 _SAFE_NAME = 200
+_TERMS_INPUTS = {DocumentKind.POLICY, DocumentKind.DISCHARGE_SUMMARY}
 
 
 def safe_filename(name: str | None) -> str:
@@ -49,6 +51,7 @@ class IngestService:
         index: PolicyIndex,
         retrieval: RetrievalSettings,
         limits: CaseSettings,
+        after_ready: Callable[[str], Awaitable[None]] | None = None,
     ) -> None:
         self._sessions = sessions
         self._reader = reader
@@ -57,6 +60,8 @@ class IngestService:
         self._index = index
         self._retrieval = retrieval
         self._limits = limits
+        # Runs after a policy or discharge summary is ready, e.g. to pre-read policy terms.
+        self._after_ready = after_ready
         self._locks: defaultdict[str, asyncio.Lock] = defaultdict(asyncio.Lock)
 
     async def accept(
@@ -81,7 +86,9 @@ class IngestService:
             case_id = document.case_id
         async with self._locks[case_id]:
             try:
-                await self._process(case_id, document_id, data, kind)
+                ready_kind = await self._process(case_id, document_id, data, kind)
+                if self._after_ready is not None and ready_kind in _TERMS_INPUTS:
+                    await self._after_ready(case_id)
             except AppError as exc:
                 await self._fail(document_id, str(exc))
             except Exception:
@@ -90,14 +97,14 @@ class IngestService:
 
     async def _process(
         self, case_id: str, document_id: str, data: bytes, kind: DocumentKind | None
-    ) -> None:
+    ) -> DocumentKind | None:
         tags = {"case": case_id, "agent": "reader"}
         read = await self._reader.read(data, tags=tags)
 
         async with self._sessions() as session:
             case = await session.get(Case, case_id)
             if case is None:
-                return
+                return None
             vault = self._masker.unseal(case.pii_vault)
         masked = [
             Page(
@@ -114,7 +121,7 @@ class IngestService:
             case = await session.get(Case, case_id)
             document = await session.get(Document, document_id)
             if case is None or document is None:
-                return
+                return None
             case.pii_vault = self._masker.seal(vault)
             if kind in {DocumentKind.POLICY, DocumentKind.DISCHARGE_SUMMARY}:
                 case.terms_reading = None
@@ -129,6 +136,7 @@ class IngestService:
             document.extracted = extracted
             document.clause_count = clause_count
         log.info("document ready", extra={"document": document_id, "kind": kind.value})
+        return kind
 
     async def _extract(
         self,

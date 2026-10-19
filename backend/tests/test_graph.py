@@ -3,6 +3,7 @@
 from decimal import Decimal
 from typing import Any
 
+from app.agents.advocate import LetterDraft, LetterKind, ReviewResult
 from app.agents.auditor import AuditOutcome
 from app.agents.checker import CheckReport
 from app.agents.graph import CaseSnapshot, ClaimGraph, Intent
@@ -110,3 +111,47 @@ async def test_checklist_needs_no_model() -> None:
     )
     groups = {item.group for item in state["checklist"].items}
     assert groups == {"common", "cashless", "accident"}
+
+
+async def test_terms_are_prepared_with_the_checker_loop() -> None:
+    expert, checker = StubExpert(), FlakyChecker()
+    reading = await graph(expert, checker).read_terms(snapshot())
+    assert reading is not None
+    assert expert.feedback == [[], ["The room rent limit has no citation."]]
+
+
+class StubAdvocate:
+    def __init__(self) -> None:
+        self.reviews = 0
+
+    async def review(self, *args: Any, **kw: Any) -> Any:
+        self.reviews += 1
+        raise AssertionError("a saved review should be reused")
+
+    async def draft(self, *args: Any, **kw: Any) -> LetterDraft:
+        return LetterDraft(subject="Appeal", body="x" * 400, clause_ids=["c-001"])
+
+
+async def test_letters_reuse_a_saved_review() -> None:
+    from app.domain import RejectionDecision, RejectionLetter
+
+    checker = FlakyChecker()
+    checker.calls = 1
+    checker.letter = lambda *a, **k: CheckReport(passed=True)  # type: ignore[attr-defined]
+    advocate = StubAdvocate()
+    claim_graph = ClaimGraph(
+        router=None,  # type: ignore[arg-type]
+        expert=StubExpert(),  # type: ignore[arg-type]
+        auditor=StubAuditor(),  # type: ignore[arg-type]
+        advocate=advocate,  # type: ignore[arg-type]
+        checker=checker,  # type: ignore[arg-type]
+        settings=AgentSettings(),
+    )
+    saved = ReviewResult(reasons=[], recommendation="appeal", summary="Appeal the cut.")
+    rejection = RejectionLetter(decision=RejectionDecision.PARTIALLY_APPROVED)
+    state = await claim_graph.run(
+        snapshot(rejection=rejection, review=saved), Intent.LETTER, letter_kind=LetterKind.GRIEVANCE
+    )
+    assert advocate.reviews == 0
+    assert state["letter"].subject == "Appeal"
+    assert "reused the saved review" in " ".join(state["steps"])

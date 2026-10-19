@@ -64,6 +64,8 @@ class CaseSnapshot:
     rejection: RejectionLetter | None = None
     reading: TermsReading | None = None
     labelled: list[LabelledLine] | None = None
+    review: ReviewResult | None = None
+    review_clauses: tuple[Clause, ...] = ()
     parties: str = "Policyholder: [your name]. Policy number: [your policy number]."
 
 
@@ -200,6 +202,22 @@ class ClaimGraph:
         result = cast(GraphState, await self._graph.ainvoke(state))
         return result
 
+    async def read_terms(self, snapshot: CaseSnapshot) -> TermsReading | None:
+        """Read and check the policy terms ahead of any request; None if they never pass."""
+        feedback: list[str] = []
+        for _ in range(self._settings.checker_max_retries + 1):
+            reading = await self._expert.read_terms(
+                snapshot.case_id,
+                snapshot.facts,
+                feedback=feedback,
+                tags={"case": snapshot.case_id, "step": "prepare"},
+            )
+            report = self._checker.terms(reading.terms, reading.clauses)
+            if report.passed:
+                return reading
+            feedback = report.issues
+        return None
+
     @staticmethod
     def _tags(state: GraphState) -> dict[str, str]:
         return {"case": state["snapshot"].case_id}
@@ -326,6 +344,12 @@ class ClaimGraph:
         if snapshot.rejection is None:
             raise RuntimeError("review node reached without an insurer letter")
         feedback = state.get("feedback", []) if state.get("retry") == "review" else []
+        if state["intent"] == Intent.LETTER and snapshot.review is not None and not feedback:
+            return {
+                "review": snapshot.review,
+                "review_clauses": list(snapshot.review_clauses),
+                "steps": ["Claim Advocate: reused the saved review of the insurer's letter"],
+            }
         audit = state.get("audit")
         review, clauses = await self._advocate.review(
             snapshot.case_id,

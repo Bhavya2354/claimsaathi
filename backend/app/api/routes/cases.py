@@ -1,6 +1,6 @@
 from typing import Literal
 
-from fastapi import APIRouter, Query, status
+from fastapi import APIRouter, BackgroundTasks, Query, status
 
 from app.api.dependencies import CaseDep, ContainerDep, SessionDep
 from app.api.schemas import FactsUpdate, FeedbackRequest
@@ -26,7 +26,11 @@ async def get_case(case: CaseDep, container: ContainerDep, session: SessionDep) 
 
 @router.patch("/{case_id}/facts")
 async def update_facts(
-    body: FactsUpdate, case: CaseDep, container: ContainerDep, session: SessionDep
+    body: FactsUpdate,
+    case: CaseDep,
+    container: ContainerDep,
+    session: SessionDep,
+    background: BackgroundTasks,
 ) -> CaseView:
     stored = await session.get(Case, case.id)
     if stored is None:
@@ -36,6 +40,7 @@ async def update_facts(
     stored.terms_reading = None
     await session.flush()
     await session.refresh(stored, ["documents"])
+    background.add_task(container.claims.prepare, stored.id)
     return await container.reads.case(session, stored)
 
 
