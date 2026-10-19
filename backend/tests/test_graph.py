@@ -29,10 +29,8 @@ class StubExpert:
                 basis="percent_of_sum_insured", value=Decimal(1), clause_ids=["c-001"]
             ),
         )
-        return TermsReading(terms=terms, clauses=[CLAUSE])
-
-    async def relate(self, *args: Any, **kw: Any) -> CaseRelation:
-        return CaseRelation(treatment_is_pre_existing=False, reasoning="Not pre-existing.")
+        relation = CaseRelation(treatment_is_pre_existing=False, reasoning="Not pre-existing.")
+        return TermsReading(terms=terms, clauses=[CLAUSE], relation=relation)
 
 
 class StubAuditor:

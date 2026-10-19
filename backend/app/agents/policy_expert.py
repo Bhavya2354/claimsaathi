@@ -84,10 +84,20 @@ class _Limits(BaseModel):
 
 class _Waiting(BaseModel):
     waiting_periods: list[WaitingPeriod] = Field(default_factory=list)
+    treatment_is_pre_existing: bool = Field(
+        default=False, description="The treated illness, or its underlying disease, predates cover."
+    )
+    specific_disease_matched: str | None = Field(
+        default=None, description="Specific-disease waiting list entry this treatment falls in."
+    )
+    reasoning: str = Field(default="", description="One or two sentences on the two decisions.")
 
 
 class _Caps(BaseModel):
     sub_limits: list[SubLimit] = Field(default_factory=list)
+    sub_limit_matched: str | None = Field(
+        default=None, description="Exact `treatment` name of the sub-limit this case falls under."
+    )
 
 
 class CaseRelation(BaseModel):
@@ -102,7 +112,7 @@ class CaseRelation(BaseModel):
     sub_limit_matched: str | None = Field(
         default=None, description="Exact `treatment` name of the sub-limit that applies."
     )
-    reasoning: str = Field(description="One or two sentences on why.")
+    reasoning: str = Field(default="", description="One or two sentences on why.")
 
 
 class PolicyAnswer(BaseModel):
@@ -121,6 +131,10 @@ class _Reading:
 class TermsReading(BaseModel):
     terms: PolicyTerms
     clauses: list[Clause]
+    # Readings cached before case decisions were part of them carry none; re-read on next run.
+    relation: CaseRelation = Field(
+        default_factory=lambda: CaseRelation(treatment_is_pre_existing=False)
+    )
 
 
 _ANSWER_ROLE = """You explain Indian health insurance policies to patients and their families.
@@ -129,16 +143,23 @@ term you use. Cite the clause IDs your answer depends on. If the clauses do not 
 question, say so and set found_in_policy to false; never guess. You do not give medical or
 legal advice."""
 
-_RELATE_ROLE = """You compare one hospital admission with a health insurance policy. Decide:
-1. treatment_is_pre_existing: true when the treated illness, or the underlying disease it is a
-   complication of, existed before the policy started. Example: a diabetic foot ulcer in a patient
-   with diabetes for 6 years, under a policy that started 2 years ago, is pre-existing. A new
-   acute illness with no related past history is not. Compare how long the condition has existed
-   with the days of cover at admission.
-2. specific_disease_matched: the entry of the specific-disease waiting list this treatment falls
-   in, if any.
-3. sub_limit_matched: the exact treatment name from the sub-limit list that applies, if any.
-Decide only from the clauses and case details. When they do not show it, answer false or null."""
+# The case decisions ride along with the reading of the clauses they depend on, so they cost
+# no extra model call and are cached with the terms.
+_GROUP_TASKS = {
+    "limits": "",
+    "waiting": """
+Also decide for this case:
+- treatment_is_pre_existing: true when the treated illness, or the underlying disease it is a
+  complication of, existed before the policy started. Example: a diabetic foot ulcer in a patient
+  with diabetes for 6 years, under a policy that started 2 years ago, is pre-existing. A new acute
+  illness with no related past history is not. Compare how long the condition has existed with
+  the days of cover at admission.
+- specific_disease_matched: the specific-disease waiting list entry this treatment falls in.
+When the case details do not show it, answer false or null.""",
+    "caps": """
+Also decide sub_limit_matched: the exact treatment name of the sub-limit this case's treatment
+falls under, or null.""",
+}
 
 
 def _rupee_spellings(amount: float) -> set[str]:
@@ -195,7 +216,7 @@ class PolicyExpert:
         value = await self._router.structured(
             Task.REASONING,
             [
-                Message(role="system", content=system_prompt(_TERMS_ROLE)),
+                Message(role="system", content=system_prompt(_TERMS_ROLE + _GROUP_TASKS[group])),
                 Message(role="user", content=prompt),
             ],
             schema,
@@ -234,34 +255,14 @@ class PolicyExpert:
             waiting_periods=waiting.waiting_periods,
             sub_limits=caps.sub_limits,
         )
-        unique = {c.clause_id: c for c in [*c1, *c2, *c3]}
-        return TermsReading(terms=terms, clauses=list(unique.values()))
-
-    async def relate(
-        self,
-        terms: PolicyTerms,
-        clauses: Sequence[Clause],
-        facts: CaseFacts,
-        tags: dict[str, str] | None = None,
-    ) -> CaseRelation:
-        sub_limits = ", ".join(s.treatment for s in terms.sub_limits) or "none"
-        waits = ", ".join(c for w in terms.waiting_periods for c in w.conditions) or "none"
-        lists = [f"Sub-limits: {sub_limits}", f"Specific-disease waits: {waits}"]
-        context, _ = pack_clauses(clauses, self._settings.context_max_chars // 2)
-        return await self._router.structured(
-            Task.REASONING,
-            [
-                Message(role="system", content=system_prompt(_RELATE_ROLE)),
-                Message(
-                    role="user",
-                    content=(
-                        f"Case:\n{describe_facts(facts)}\n\n" + "\n".join(lists) + f"\n\n{context}"
-                    ),
-                ),
-            ],
-            CaseRelation,
-            tags={**(tags or {}), "agent": "policy_expert", "step": "relate"},
+        relation = CaseRelation(
+            treatment_is_pre_existing=waiting.treatment_is_pre_existing,
+            specific_disease_matched=waiting.specific_disease_matched,
+            sub_limit_matched=caps.sub_limit_matched,
+            reasoning=waiting.reasoning,
         )
+        unique = {c.clause_id: c for c in [*c1, *c2, *c3]}
+        return TermsReading(terms=terms, clauses=list(unique.values()), relation=relation)
 
     async def answer(
         self,

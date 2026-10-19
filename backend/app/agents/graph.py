@@ -269,9 +269,7 @@ class ClaimGraph:
             reading = await self._expert.read_terms(
                 snapshot.case_id, snapshot.facts, feedback=feedback, tags=self._tags(state)
             )
-        relation = await self._expert.relate(
-            reading.terms, reading.clauses, snapshot.facts, tags=self._tags(state)
-        )
+        relation = reading.relation
         facts = snapshot.facts.model_copy(
             update={
                 "treatment_is_pre_existing": relation.treatment_is_pre_existing,
