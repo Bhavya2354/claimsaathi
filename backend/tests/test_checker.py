@@ -67,3 +67,11 @@ def test_amount_table_states_what_is_still_due() -> None:
         "Amount claimed": Decimal(100_000),
         "Amount the insurer approved": Decimal(60_000),
     }
+
+
+def test_uncited_figures_are_grounded_only_when_a_clause_prints_them() -> None:
+    from app.agents.policy_expert import _clauses_stating
+
+    schedule = Clause("s-001", "Policy schedule", 1, 1, "Sum insured: Rs 5,00,000.00")
+    assert _clauses_stating(500_000.0, [CLAUSES[0], schedule]) == ["s-001"]
+    assert _clauses_stating(300_000.0, [CLAUSES[0], schedule]) == []

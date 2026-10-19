@@ -54,8 +54,10 @@ Copy every charge line with its net amount in rupees. Rules:
 - Skip subtotal, grand total, advance or deposit paid, amount due and tax summary rows.
 - A discount or concession row is a line with a negative amount.
 - Set `page` from the nearest [page N] marker above the row.
-- Header fields (hospital, dates, room category, room rent per day, printed net total) are
-  filled only when printed; otherwise null. Dates are ISO yyyy-mm-dd."""
+- Header fields (hospital, dates, room category, printed net total) are filled only when
+  printed; otherwise null. room_rent_per_day only when a per-day rate is printed, never a
+  multi-day room total. Dates are ISO yyyy-mm-dd.
+- quantity is the number of days or units printed for the row, when shown."""
 
 _DISCHARGE_ROLE = """You read hospital discharge summaries. Extract the final diagnosis,
 procedures done, admission and discharge dates (ISO yyyy-mm-dd), conditions noted as existing

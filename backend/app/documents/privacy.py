@@ -42,6 +42,8 @@ _NAME_CUES = re.compile(
 _TOKEN = re.compile(r"\[[A-Z_]+_\d+\]")
 # One more capitalised word after a detected name, on the same line.
 _NAME_WORD = re.compile(r" ([A-Z][a-z]{1,20})\b")
+# One capitalised word right before a detected name ("Ramesh" in "Ramesh Kumar Iyer").
+_NAME_WORD_BEFORE = re.compile(r"\b([A-Z][a-z]{1,20}) $")
 _NOT_NAME_WORDS = {
     "age",
     "sex",
@@ -201,6 +203,8 @@ class PiiMasker:
 def _keep(result: RecognizerResult, text: str) -> bool:
     if result.entity_type != "PERSON":
         return True
+    if any(ch.isdigit() for ch in text[result.start : result.end]):
+        return False  # "Rs 5,00,000" next to "Sum insured" is an amount, not a name
     line_start = text.rfind("\n", 0, result.start) + 1
     line_end = text.find("\n", result.end)
     line = text[line_start : line_end if line_end != -1 else len(text)]
@@ -211,12 +215,16 @@ def _extend_name(result: RecognizerResult, text: str) -> RecognizerResult:
     """The small NER model often stops after two words of an Indian name; finish the name."""
     if result.entity_type != "PERSON":
         return result
-    end = result.end
+    start, end = result.start, result.end
     while match := _NAME_WORD.match(text, end):
         if match.group(1).lower() in _NOT_NAME_WORDS:
             break
         end = match.end()
-    return RecognizerResult("PERSON", result.start, end, result.score)
+    while match := _NAME_WORD_BEFORE.search(text, 0, start):
+        if match.group(1).lower() in _NOT_NAME_WORDS:
+            break
+        start = match.start(1)
+    return RecognizerResult("PERSON", start, end, result.score)
 
 
 def _merge_names(results: list[RecognizerResult], text: str) -> list[RecognizerResult]:

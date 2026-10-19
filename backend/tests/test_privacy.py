@@ -57,3 +57,16 @@ def test_unmask_tree_handles_nested_data() -> None:
     vault = {"[PERSON_1]": "Asha"}
     data = {"a": ["Dear [PERSON_1]", {"b": "[PERSON_1]"}], "n": 3}
     assert PiiMasker.unmask_tree(data, vault) == {"a": ["Dear Asha", {"b": "Asha"}], "n": 3}
+
+
+def test_amounts_on_insured_lines_are_not_names() -> None:
+    masked = masker().mask("Sum insured: Rs 500,000.00\nInsured: Mr. Ramesh Kumar Iyer", {})
+    assert "Rs 500,000.00" in masked
+    assert "Ramesh" not in masked
+
+
+def test_names_are_masked_in_full_when_ner_finds_only_part() -> None:
+    masked = masker().mask("Policy holder: Ramesh Kumar Iyer\nPolicy period start: 2022-05-09", {})
+    assert "Ramesh" not in masked
+    assert "Iyer" not in masked
+    assert "Policy holder:" in masked

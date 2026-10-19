@@ -124,6 +124,23 @@ specific-disease waiting list, and which sub-limit (if any) applies. Use the exa
 name from the sub-limit list. When the case details do not show it, answer false or null."""
 
 
+def _rupee_spellings(amount: float) -> set[str]:
+    whole = int(amount)
+    plain = str(whole)
+    western = f"{whole:,}"
+    head, tail = plain[:-3], plain[-3:]
+    indian = ",".join([*[head[max(0, i - 2) : i] for i in range(len(head), 0, -2)][::-1], tail])
+    return {plain, western, indian.lstrip(",")}
+
+
+def _clauses_stating(amount: float | None, clauses: Sequence[Clause]) -> list[str]:
+    """Clauses that print this amount, to ground a figure the model read but did not cite."""
+    if amount is None or amount <= 0:
+        return []
+    spellings = _rupee_spellings(amount)
+    return [c.clause_id for c in clauses if any(s in c.text for s in spellings)][:1]
+
+
 class PolicyExpert:
     def __init__(
         self, router: ModelRouter, index: PolicyIndex, settings: RetrievalSettings
@@ -185,12 +202,12 @@ class PolicyExpert:
             self._read_group(case_id, "waiting", _Waiting, shared),
             self._read_group(case_id, "caps", _Caps, shared),
         )
-        # A sum insured with no clause behind it was copied from the case details; the engine
-        # reads those directly, so only a cited figure from the policy is kept.
-        cited_sum = limits.sum_insured if limits.sum_insured_clause_ids else None
+        sum_ids = limits.sum_insured_clause_ids or _clauses_stating(limits.sum_insured, c1)
+        # A figure no shown clause states was copied from the case details, which the engine
+        # reads directly; only a figure the policy itself prints is kept.
         terms = PolicyTerms(
-            sum_insured=cited_sum,
-            clause_ids=limits.sum_insured_clause_ids,
+            sum_insured=limits.sum_insured if sum_ids else None,
+            clause_ids=sum_ids,
             room_rent=limits.room_rent,
             icu_rent=limits.icu_rent,
             copay=limits.copay,

@@ -79,9 +79,10 @@ def effective_facts(case: Case) -> CaseFacts:
         }
     bill = _merge_bills(_ready(case, DocumentKind.BILL) or _ready(case, DocumentKind.ESTIMATE))
     if bill is not None:
+        # Dates only. The daily room rate is derived by the engine from the room lines, which is
+        # more reliable than a header figure a model may have read off a multi-day total.
         fallback.setdefault("admission_date", bill.admission_date)
         fallback.setdefault("discharge_date", bill.discharge_date)
-        fallback |= {"room_rent_per_day": bill.room_rent_per_day}
     updates = {
         key: value
         for key, value in fallback.items()
